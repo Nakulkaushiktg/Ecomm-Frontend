@@ -43,9 +43,6 @@ export default function Home() {
               <Link to="/shop" className="rounded-full bg-gold px-7 py-3 text-sm font-semibold text-ink hover:bg-gold-light">
                 Shop Collection
               </Link>
-              <Link to="/shop/god" className="rounded-full border border-cream/40 px-7 py-3 text-sm font-semibold hover:bg-cream/10">
-                Sacred Idols
-              </Link>
             </div>
           </div>
           <div className="hidden md:block">
@@ -68,20 +65,24 @@ export default function Home() {
             <Link
               key={c.key}
               to={`/shop/${c.key}`}
-              className="card flex flex-col items-center gap-3 p-8 text-center transition hover:-translate-y-1 hover:shadow-soft"
+              className="card group relative overflow-hidden transition hover:-translate-y-1 hover:shadow-soft"
             >
-              {c.image ? (
-                <img
-                  src={c.image}
-                  alt={c.label}
-                  className="h-14 w-14 rounded-full object-cover"
-                />
-              ) : (
-                <span className="grid h-14 w-14 place-items-center rounded-full bg-sand text-2xl">
-                  {c.emoji}
-                </span>
-              )}
-              <span className="font-serif text-lg text-ink">{c.label}</span>
+              <div className="relative aspect-square overflow-hidden bg-sand">
+                {c.image ? (
+                  <img
+                    src={c.image}
+                    alt={c.label}
+                    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                  />
+                ) : (
+                  <span className="grid h-full w-full place-items-center text-5xl">
+                    {c.emoji}
+                  </span>
+                )}
+              </div>
+              <span className="block p-4 text-center font-serif text-lg text-ink group-hover:text-maroon">
+                {c.label}
+              </span>
             </Link>
           ))}
         </div>
