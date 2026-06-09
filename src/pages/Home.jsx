@@ -70,9 +70,17 @@ export default function Home() {
               to={`/shop/${c.key}`}
               className="card flex flex-col items-center gap-3 p-8 text-center transition hover:-translate-y-1 hover:shadow-soft"
             >
-              <span className="grid h-14 w-14 place-items-center rounded-full bg-sand text-2xl">
-                {c.emoji}
-              </span>
+              {c.image ? (
+                <img
+                  src={c.image}
+                  alt={c.label}
+                  className="h-14 w-14 rounded-full object-cover"
+                />
+              ) : (
+                <span className="grid h-14 w-14 place-items-center rounded-full bg-sand text-2xl">
+                  {c.emoji}
+                </span>
+              )}
               <span className="font-serif text-lg text-ink">{c.label}</span>
             </Link>
           ))}
