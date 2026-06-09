@@ -25,10 +25,12 @@ export default function ProductCard({ product }) {
   }, [images.length]);
 
   const img = images[idx] || PLACEHOLDER;
+  // when the product has variants, show the first variant's price (per-size pricing)
+  const fv = product.variants?.length ? product.variants[0] : null;
+  const dPrice = fv && fv.price > 0 ? fv.price : product.price;
+  const dMrp = fv && fv.mrp > 0 ? fv.mrp : product.mrp;
   const off =
-    product.mrp > product.price
-      ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
-      : 0;
+    dMrp > dPrice ? Math.round(((dMrp - dPrice) / dMrp) * 100) : 0;
 
   const hasOptions = (product.sizes?.length || 0) + (product.colors?.length || 0) > 0;
   const cartKey = `${product.id}__`;
@@ -105,11 +107,11 @@ export default function ProductCard({ product }) {
         )}
         <div className="mt-2 flex items-center gap-2">
           <span className="text-lg font-semibold text-maroon">
-            {rupee(product.price)}
+            {rupee(dPrice)}
           </span>
           {off > 0 && (
             <span className="text-sm text-ink/40 line-through">
-              {rupee(product.mrp)}
+              {rupee(dMrp)}
             </span>
           )}
         </div>
