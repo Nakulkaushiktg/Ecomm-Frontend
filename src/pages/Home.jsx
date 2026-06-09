@@ -4,12 +4,6 @@ import { api } from "../api.js";
 import { useCategories } from "../context/CategoriesContext.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 
-const CAT_PLACEHOLDER =
-  "data:image/svg+xml;utf8," +
-  encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="#F3E9D7"/><text x="50%" y="50%" font-size="22" fill="#7B2D26" text-anchor="middle" dominant-baseline="middle" font-family="serif">Kirti Thread Art</text></svg>'
-  );
-
 export default function Home() {
   const { categories } = useCategories();
   const [featured, setFeatured] = useState([]);
@@ -24,7 +18,7 @@ export default function Home() {
   }, []);
 
   const customWa = `https://wa.me/${ownerWa}?text=${encodeURIComponent(
-    "Hi Kirti Thread Art! 🙏 I'd like to order a custom handmade piece. Here are my details:"
+    "Hi Divya Handmade! 🙏 I'd like to order a custom handmade piece. Here are my details:"
   )}`;
 
   return (
@@ -55,11 +49,11 @@ export default function Home() {
             </div>
           </div>
           <div className="hidden md:block">
-            <img
-              src="https://images.unsplash.com/photo-1520903074185-8eca362b3dce?w=900"
-              alt="Handmade woolens"
-              className="h-full w-full rounded-3xl object-cover shadow-soft"
-            />
+        <img
+          src="/home.png"
+          alt="Handmade woolens"
+          className="h-full w-full rounded-3xl object-cover shadow-soft"
+        />
           </div>
         </div>
       </section>
@@ -74,19 +68,12 @@ export default function Home() {
             <Link
               key={c.key}
               to={`/shop/${c.key}`}
-              className="card group overflow-hidden transition hover:-translate-y-1 hover:shadow-soft"
+              className="card flex flex-col items-center gap-3 p-8 text-center transition hover:-translate-y-1 hover:shadow-soft"
             >
-              <div className="aspect-square overflow-hidden bg-sand">
-                <img
-                  src={c.image || CAT_PLACEHOLDER}
-                  alt={c.label}
-                  onError={(e) => (e.currentTarget.src = CAT_PLACEHOLDER)}
-                  className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                />
-              </div>
-              <span className="block p-4 text-center font-serif text-lg text-ink">
-                {c.label}
+              <span className="grid h-14 w-14 place-items-center rounded-full bg-sand text-2xl">
+                {c.emoji}
               </span>
+              <span className="font-serif text-lg text-ink">{c.label}</span>
             </Link>
           ))}
         </div>
