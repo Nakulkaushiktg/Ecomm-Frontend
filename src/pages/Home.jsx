@@ -18,7 +18,7 @@ export default function Home() {
   }, []);
 
   const customWa = `https://wa.me/${ownerWa}?text=${encodeURIComponent(
-    "Hi Divya Handmade! 🙏 I'd like to order a custom handmade piece. Here are my details:"
+    "Hi Kirti Thread Art! 🙏 I'd like to order a custom handmade piece. Here are my details:"
   )}`;
 
   return (
