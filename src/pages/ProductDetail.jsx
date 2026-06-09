@@ -23,10 +23,6 @@ export default function ProductDetail() {
   const [notFound, setNotFound] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [related, setRelated] = useState([]);
-  const [rForm, setRForm] = useState({ name: "", rating: 5, comment: "", image_url: "" });
-  const [rMsg, setRMsg] = useState("");
-  const [rUploading, setRUploading] = useState(false);
-  const [showReviewForm, setShowReviewForm] = useState(false);
   const [size, setSize] = useState("");
   const [color, setColor] = useState("");
   const [variantErr, setVariantErr] = useState("");
@@ -44,41 +40,6 @@ export default function ProductDetail() {
     loadReviews();
     api.get(`/api/products/${slug}/related`).then((r) => setRelated(r.data)).catch(() => {});
   }, [slug]);
-
-  const uploadReviewImage = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setRUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const { data } = await api.post("/api/upload/review", fd, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setRForm((f) => ({ ...f, image_url: data.url }));
-    } catch {
-      setRMsg("Image upload failed.");
-    } finally {
-      setRUploading(false);
-      e.target.value = "";
-    }
-  };
-
-  const submitReview = async (e) => {
-    e.preventDefault();
-    setRMsg("");
-    if (!rForm.name.trim()) {
-      setRMsg("Please enter your name.");
-      return;
-    }
-    await api.post(`/api/products/${slug}/reviews`, rForm);
-    setRForm({ name: "", rating: 5, comment: "", image_url: "" });
-    setRMsg("Thank you for your review!");
-    setShowReviewForm(false);
-    loadReviews();
-    api.get(`/api/products/${slug}`).then((r) => setP(r.data));
-    setTimeout(() => setRMsg(""), 4000);
-  };
 
   // build the variant string and validate selection
   const variantString = () => {
@@ -101,6 +62,12 @@ export default function ProductDetail() {
     ? (variantReady() ? (selectedVariant()?.stock ?? 0) : null)
     : p?.stock;
 
+  // price/mrp for the chosen variant (falls back to product base price)
+  const _sel = hasVariants ? selectedVariant() : null;
+  const curPrice = _sel && _sel.price > 0 ? _sel.price : (p?.price ?? 0);
+  const curMrp = _sel && _sel.mrp > 0 ? _sel.mrp : (p?.mrp ?? 0);
+  const curOff = curMrp > curPrice ? Math.round(((curMrp - curPrice) / curMrp) * 100) : 0;
+
   const addToCart = () => {
     setVariantErr("");
     if (!variantReady()) {
@@ -111,7 +78,7 @@ export default function ProductDetail() {
       setVariantErr("This option is out of stock.");
       return;
     }
-    add(p, qty, variantString(), size, color);
+    add({ ...p, price: curPrice }, qty, variantString(), size, color);
   };
 
   if (notFound)
@@ -128,7 +95,6 @@ export default function ProductDetail() {
     ...(p.images?.length ? p.images : [PLACEHOLDER]).map((url) => ({ type: "image", url })),
     ...((p.videos || []).map((url) => ({ type: "video", url }))),
   ];
-  const off = p.mrp > p.price ? Math.round(((p.mrp - p.price) / p.mrp) * 100) : 0;
 
   const buyNow = () => {
     setVariantErr("");
@@ -140,7 +106,7 @@ export default function ProductDetail() {
       setVariantErr("This option is out of stock.");
       return;
     }
-    add(p, qty, variantString(), size, color);
+    add({ ...p, price: curPrice }, qty, variantString(), size, color);
     navigate("/checkout");
   };
 
@@ -209,12 +175,12 @@ export default function ProductDetail() {
           )}
 
           <div className="mt-5 flex items-center gap-3">
-            <span className="text-3xl font-semibold text-maroon">{rupee(p.price)}</span>
-            {off > 0 && (
+            <span className="text-3xl font-semibold text-maroon">{rupee(curPrice)}</span>
+            {curOff > 0 && (
               <>
-                <span className="text-lg text-ink/40 line-through">{rupee(p.mrp)}</span>
+                <span className="text-lg text-ink/40 line-through">{rupee(curMrp)}</span>
                 <span className="rounded-full bg-gold/20 px-2 py-0.5 text-sm font-semibold text-maroon">
-                  {off}% off
+                  {curOff}% off
                 </span>
               </>
             )}
@@ -357,13 +323,12 @@ export default function ProductDetail() {
                 })}
               </div>
 
-              <button
-                onClick={() => { setShowReviewForm(true); setRMsg(""); }}
-                className="btn-primary mt-5 w-full"
-              >
-                Write a Review
-              </button>
-              {rMsg && <p className="mt-2 text-center text-sm text-green-700">{rMsg}</p>}
+              <p className="mt-5 rounded-lg bg-sand/50 p-3 text-center text-xs text-ink/60">
+                Reviews can be written after your order is delivered, from{" "}
+                <Link to="/orders" className="font-medium text-maroon hover:underline">
+                  My Orders
+                </Link>.
+              </p>
             </div>
           </div>
 
@@ -404,80 +369,6 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
-
-      {/* Write review modal */}
-      {showReviewForm && (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-ink/50 p-4"
-          onClick={() => setShowReviewForm(false)}
-        >
-          <form
-            onSubmit={submitReview}
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md rounded-2xl bg-cream p-6 shadow-soft"
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="font-serif text-xl text-maroon">Write a Review</h3>
-              <button type="button" onClick={() => setShowReviewForm(false)} className="text-2xl text-ink/40 hover:text-maroon">×</button>
-            </div>
-            <p className="mt-1 text-sm text-ink/50">{p.name}</p>
-
-            <div className="mt-4 space-y-4">
-              <div>
-                <label className="label">Your Rating</label>
-                <Stars
-                  value={rForm.rating}
-                  size="text-3xl"
-                  onChange={(n) => setRForm({ ...rForm, rating: n })}
-                />
-              </div>
-              <div>
-                <label className="label">Your Name</label>
-                <input
-                  className="input"
-                  value={rForm.name}
-                  onChange={(e) => setRForm({ ...rForm, name: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="label">Review</label>
-                <textarea
-                  className="input"
-                  rows={4}
-                  placeholder="Share what you loved about this product…"
-                  value={rForm.comment}
-                  onChange={(e) => setRForm({ ...rForm, comment: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="label">Add Photo (optional)</label>
-                {rForm.image_url ? (
-                  <div className="flex items-center gap-3">
-                    <img src={rForm.image_url} alt="" className="h-16 w-16 rounded-lg border border-sand object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => setRForm({ ...rForm, image_url: "" })}
-                      className="text-sm text-red-700 hover:underline"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ) : (
-                  <label className="btn-ghost cursor-pointer">
-                    {rUploading ? "Uploading…" : "Choose Photo"}
-                    <input type="file" accept="image/*" onChange={uploadReviewImage} className="hidden" />
-                  </label>
-                )}
-              </div>
-              {rMsg && <p className="text-sm text-red-700">{rMsg}</p>}
-              <div className="flex gap-3">
-                <button className="btn-primary flex-1">Submit Review</button>
-                <button type="button" onClick={() => setShowReviewForm(false)} className="btn-ghost">Cancel</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      )}
 
       {/* Related products */}
       {related.length > 0 && (

@@ -3,11 +3,13 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import { useCategories } from "../context/CategoriesContext.jsx";
 import { useWishlist } from "../context/WishlistContext.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Navbar() {
   const { count } = useCart();
   const { categories } = useCategories();
   const wishlist = useWishlist();
+  const { isAuthed, user } = useAuth();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
@@ -61,6 +63,27 @@ export default function Navbar() {
               </span>
             )}
           </Link>
+          {isAuthed ? (
+            <Link
+              to="/account"
+              title="My Account"
+              className="flex items-center gap-2 text-sm font-medium text-maroon hover:text-maroon-dark"
+            >
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-maroon text-cream">
+                {(user?.name?.[0] || "U").toUpperCase()}
+              </span>
+              <span className="hidden max-w-[90px] truncate sm:block">{user?.name?.split(" ")[0]}</span>
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              title="Login"
+              className="flex items-center gap-1.5 text-sm font-medium text-ink/70 hover:text-maroon"
+            >
+              <span className="text-xl">👤</span>
+              <span className="hidden sm:block">Login</span>
+            </Link>
+          )}
           <Link to="/cart" className="relative rounded-full border border-maroon/20 px-4 py-2 text-sm font-medium text-maroon hover:bg-maroon hover:text-cream">
             Cart
             {count > 0 && (

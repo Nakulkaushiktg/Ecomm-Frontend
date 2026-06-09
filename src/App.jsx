@@ -13,6 +13,9 @@ import Contact from "./pages/Contact.jsx";
 import Wishlist from "./pages/Wishlist.jsx";
 import About from "./pages/About.jsx";
 import Info from "./pages/Info.jsx";
+import Login from "./pages/Login.jsx";
+import Account from "./pages/Account.jsx";
+import Orders from "./pages/Orders.jsx";
 
 function StoreLayout({ children }) {
   return (
@@ -41,6 +44,9 @@ export default function App() {
       <Route path="/wishlist" element={<StoreLayout><Wishlist /></StoreLayout>} />
       <Route path="/about" element={<StoreLayout><About /></StoreLayout>} />
       <Route path="/info/:page" element={<StoreLayout><Info /></StoreLayout>} />
+      <Route path="/login" element={<StoreLayout><Login /></StoreLayout>} />
+      <Route path="/account" element={<StoreLayout><Account /></StoreLayout>} />
+      <Route path="/orders" element={<StoreLayout><Orders /></StoreLayout>} />
     </Routes>
   );
 }

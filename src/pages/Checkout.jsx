@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api, rupee } from "../api.js";
 import { useCart } from "../context/CartContext.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Checkout() {
   const { items, clear } = useCart();
+  const { isAuthed, user } = useAuth();
   const navigate = useNavigate();
   const [cfg, setCfg] = useState({
     upi_id: "", upi_payee_name: "", cod_fee: 0, free_shipping_above: 0, enable_cod: true,
@@ -27,6 +29,21 @@ export default function Checkout() {
     api.get("/api/orders/config").then((r) => setCfg(r.data)).catch(() => {});
     api.get("/api/orders/coupons").then((r) => setAvailableCoupons(r.data)).catch(() => {});
   }, []);
+
+  // prefill delivery details from the logged-in customer's saved profile
+  useEffect(() => {
+    if (!user) return;
+    setForm((f) => ({
+      ...f,
+      customer_name: f.customer_name || user.name || "",
+      phone: f.phone || user.phone || "",
+      email: f.email || user.email || "",
+      address: f.address || user.address || "",
+      city: f.city || user.city || "",
+      state: f.state || user.state || "",
+      pincode: f.pincode || user.pincode || "",
+    }));
+  }, [user]);
 
   // default to Razorpay (recommended) when it's available
   const [methodInit, setMethodInit] = useState(false);
@@ -54,6 +71,20 @@ export default function Checkout() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
         <p className="text-ink/60">Your cart is empty.</p>
+      </div>
+    );
+  }
+
+  if (!isAuthed) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-20 text-center">
+        <h1 className="font-serif text-2xl text-maroon">Please log in to checkout</h1>
+        <p className="mt-2 text-sm text-ink/60">
+          Log in or create an account to place your order and track it later.
+        </p>
+        <Link to="/login?redirect=/checkout" className="btn-primary mt-5 inline-block">
+          Log In / Sign Up
+        </Link>
       </div>
     );
   }
