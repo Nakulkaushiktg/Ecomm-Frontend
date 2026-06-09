@@ -45,11 +45,11 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div className="hidden md:block">
+          <div className="block">
         <img
           src="/home.png"
           alt="Handmade woolens"
-          className="h-full w-full rounded-3xl object-cover shadow-soft"
+          className="h-56 w-full rounded-3xl object-cover shadow-soft sm:h-72 md:h-full"
         />
           </div>
         </div>
