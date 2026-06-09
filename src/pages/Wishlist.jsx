@@ -5,7 +5,7 @@ import { useWishlist } from "../context/WishlistContext.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 
 export default function Wishlist() {
-  const { ids } = useWishlist();
+  const { ids, isAuthed } = useWishlist();
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -13,6 +13,20 @@ export default function Wishlist() {
   }, []);
 
   const saved = products.filter((p) => ids.includes(p.id));
+
+  if (!isAuthed) {
+    return (
+      <div className="mx-auto max-w-md px-4 py-20 text-center">
+        <h1 className="font-serif text-2xl text-maroon">My Wishlist</h1>
+        <p className="mt-2 text-sm text-ink/60">
+          Log in to save products and see your wishlist on any device.
+        </p>
+        <Link to="/login?redirect=/wishlist" className="btn-primary mt-5 inline-block">
+          Log In / Sign Up
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">

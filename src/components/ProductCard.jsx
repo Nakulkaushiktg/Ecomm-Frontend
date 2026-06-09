@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { rupee } from "../api.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useWishlist } from "../context/WishlistContext.jsx";
@@ -14,8 +14,18 @@ const PLACEHOLDER =
 export default function ProductCard({ product }) {
   const { add, items, setQty } = useCart();
   const wishlist = useWishlist();
+  const navigate = useNavigate();
   const images = product.images?.length ? product.images : [PLACEHOLDER];
   const [idx, setIdx] = useState(0);
+
+  // wishlist needs an account; send guests to login
+  const onWishlist = () => {
+    if (!wishlist.isAuthed) {
+      navigate("/login?redirect=/wishlist");
+      return;
+    }
+    wishlist.toggle(product.id);
+  };
 
   // auto-rotate through images if there is more than one
   useEffect(() => {
@@ -84,7 +94,7 @@ export default function ProductCard({ product }) {
         </div>
       </Link>
       <button
-        onClick={() => wishlist.toggle(product.id)}
+        onClick={onWishlist}
         title="Save to wishlist"
         className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-cream/90 text-lg shadow-soft transition hover:scale-110"
       >
