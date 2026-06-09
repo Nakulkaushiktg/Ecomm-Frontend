@@ -35,7 +35,11 @@ export default function ProductDetail() {
     setColor("");
     api
       .get(`/api/products/${slug}`)
-      .then((r) => setP(r.data))
+      .then((r) => {
+        setP(r.data);
+        if (r.data.sizes?.length) setSize(r.data.sizes[0]);
+        if (r.data.colors?.length) setColor(r.data.colors[0]);
+      })
       .catch(() => setNotFound(true));
     loadReviews();
     api.get(`/api/products/${slug}/related`).then((r) => setRelated(r.data)).catch(() => {});
@@ -63,7 +67,14 @@ export default function ProductDetail() {
     : p?.stock;
 
   // price/mrp for the chosen variant (falls back to product base price)
-  const _sel = hasVariants ? selectedVariant() : null;
+  // For size-only or color-only products: match variant by whichever dimension is selected
+  const _sel = hasVariants
+    ? (p?.variants || []).find((v) =>
+        (!p?.sizes?.length || v.size === size) &&
+        (!p?.colors?.length || v.color === color)
+      ) || null
+    : null;
+  // Price is only shown when no variant selection is needed, OR when enough is selected
   const curPrice = _sel && _sel.price > 0 ? _sel.price : (p?.price ?? 0);
   const curMrp = _sel && _sel.mrp > 0 ? _sel.mrp : (p?.mrp ?? 0);
   const curOff = curMrp > curPrice ? Math.round(((curMrp - curPrice) / curMrp) * 100) : 0;

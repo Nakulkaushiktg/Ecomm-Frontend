@@ -21,6 +21,18 @@ export default function Home() {
     "Hi Kirti Thread Art! 🙏 I'd like to order a custom handmade piece. Here are my details:"
   )}`;
 
+  // Get default display price for a product (first variant if exists, else base price)
+  const getDisplayPrice = (p) => {
+    if (p.variants?.length) {
+      const first = p.variants[0];
+      return {
+        price: first.price > 0 ? first.price : p.price,
+        mrp: first.mrp > 0 ? first.mrp : p.mrp,
+      };
+    }
+    return { price: p.price, mrp: p.mrp };
+  };
+
   return (
     <div>
       {/* Hero */}
@@ -46,11 +58,11 @@ export default function Home() {
             </div>
           </div>
           <div className="block">
-        <img
-          src="/home.png"
-          alt="Handmade woolens"
-          className="h-56 w-full rounded-3xl object-cover shadow-soft sm:h-72 md:h-full"
-        />
+            <img
+              src="/home.png"
+              alt="Handmade woolens"
+              className="h-56 w-full rounded-3xl object-cover shadow-soft sm:h-72 md:h-full"
+            />
           </div>
         </div>
       </section>
@@ -100,9 +112,12 @@ export default function Home() {
           <p className="text-ink/50">No products yet. Add some from the admin panel.</p>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {featured.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
+            {featured.map((p) => {
+              const { price, mrp } = getDisplayPrice(p);
+              return (
+                <ProductCard key={p.id} product={{ ...p, price, mrp }} />
+              );
+            })}
           </div>
         )}
       </section>
