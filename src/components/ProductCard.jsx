@@ -8,7 +8,7 @@ import Stars from "./Stars.jsx";
 const PLACEHOLDER =
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="#D4ECE6"/><text x="50%" y="50%" font-size="20" fill="#3E7CA5" text-anchor="middle" dominant-baseline="middle" font-family="serif">Kirti Thread Art</text></svg>'
+    '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="#F3E9D7"/><text x="50%" y="50%" font-size="20" fill="#7B2D26" text-anchor="middle" dominant-baseline="middle" font-family="serif">Kirti Thread Art</text></svg>'
   );
 
 export default function ProductCard({ product }) {

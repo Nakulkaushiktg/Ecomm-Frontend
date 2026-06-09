@@ -105,7 +105,7 @@ export default function Checkout() {
       description: "Order Payment",
       order_id: rzp.razorpay_order_id,
       prefill: { name: form.customer_name, contact: form.phone, email: form.email },
-      theme: { color: "#3E7CA5" },
+      theme: { color: "#7B2D26" },
       handler: async (resp) => {
         // 3. payment done -> create our order with verified payment details
         try {

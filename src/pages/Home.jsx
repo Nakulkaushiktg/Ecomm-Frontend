@@ -7,7 +7,7 @@ import ProductCard from "../components/ProductCard.jsx";
 const CAT_PLACEHOLDER =
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="#D4ECE6"/><text x="50%" y="50%" font-size="22" fill="#3E7CA5" text-anchor="middle" dominant-baseline="middle" font-family="serif">Kirti Thread Art</text></svg>'
+    '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="#F3E9D7"/><text x="50%" y="50%" font-size="22" fill="#7B2D26" text-anchor="middle" dominant-baseline="middle" font-family="serif">Kirti Thread Art</text></svg>'
   );
 
 export default function Home() {
@@ -31,7 +31,7 @@ export default function Home() {
     <div>
       {/* Hero */}
       <section className="relative overflow-hidden bg-maroon text-cream">
-        <div className="absolute inset-0 opacity-25 [background-image:radial-gradient(circle_at_20%_20%,#FBC4A6_0,transparent_45%),radial-gradient(circle_at_80%_60%,#9FD8CF_0,transparent_40%)]" />
+        <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_20%_20%,#E8C77E_0,transparent_45%),radial-gradient(circle_at_80%_60%,#C39A4B_0,transparent_40%)]" />
         <div className="relative mx-auto grid max-w-7xl gap-8 px-4 py-20 md:grid-cols-2 md:py-28">
           <div className="flex flex-col justify-center">
             <span className="mb-3 text-xs uppercase tracking-[0.3em] text-gold-light">
@@ -114,7 +114,7 @@ export default function Home() {
       {/* Custom orders CTA */}
       <section className="mx-auto max-w-7xl px-4 pb-16">
         <div className="relative overflow-hidden rounded-3xl bg-maroon px-8 py-12 text-cream md:px-14 md:py-16">
-          <div className="absolute inset-0 opacity-25 [background-image:radial-gradient(circle_at_85%_20%,#FBC4A6_0,transparent_40%),radial-gradient(circle_at_10%_90%,#9FD8CF_0,transparent_40%)]" />
+          <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_85%_20%,#E8C77E_0,transparent_40%),radial-gradient(circle_at_10%_90%,#C39A4B_0,transparent_40%)]" />
           <div className="relative grid items-center gap-6 md:grid-cols-3">
             <div className="md:col-span-2">
               <span className="text-xs uppercase tracking-[0.3em] text-gold-light">
