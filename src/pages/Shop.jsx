@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams, Link } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { api } from "../api.js";
 import { useCategories } from "../context/CategoriesContext.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 
 export default function Shop() {
   const { category } = useParams();
-  const { categories, labelOf } = useCategories();
+  const { labelOf } = useCategories();
   const [searchParams] = useSearchParams();
   const search = searchParams.get("search") || "";
   const [products, setProducts] = useState([]);
@@ -33,29 +33,6 @@ export default function Shop() {
           ? labelOf(category)
           : "All Products"}
       </h1>
-
-      {/* category pills */}
-      <div className="mt-5 flex flex-wrap gap-2">
-        <Link
-          to="/shop"
-          className={`rounded-full border px-4 py-1.5 text-sm ${
-            !category ? "border-maroon bg-maroon text-cream" : "border-sand text-ink/70 hover:border-maroon"
-          }`}
-        >
-          All
-        </Link>
-        {categories.map((c) => (
-          <Link
-            key={c.key}
-            to={`/shop/${c.key}`}
-            className={`rounded-full border px-4 py-1.5 text-sm ${
-              category === c.key ? "border-maroon bg-maroon text-cream" : "border-sand text-ink/70 hover:border-maroon"
-            }`}
-          >
-            {c.label}
-          </Link>
-        ))}
-      </div>
 
       {loading ? (
         <p className="mt-10 text-ink/50">Loading…</p>
