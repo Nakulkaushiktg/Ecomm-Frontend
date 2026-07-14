@@ -19,6 +19,11 @@ export function CartProvider({ children }) {
     localStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 
+  // slide-in mini-cart drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const openCart = () => setDrawerOpen(true);
+  const closeCart = () => setDrawerOpen(false);
+
   // available stock for the chosen variant (falls back to product stock)
   const stockFor = (product, size, color) => {
     if (product.variants?.length) {
@@ -81,7 +86,7 @@ export function CartProvider({ children }) {
 
   return (
     <CartContext.Provider
-      value={{ items, add, setQty, remove, clear, count, total, qtyOf }}
+      value={{ items, add, setQty, remove, clear, count, total, qtyOf, drawerOpen, openCart, closeCart }}
     >
       {children}
     </CartContext.Provider>

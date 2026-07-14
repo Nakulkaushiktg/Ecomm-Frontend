@@ -6,7 +6,7 @@ import { useWishlist } from "../context/WishlistContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Navbar() {
-  const { count } = useCart();
+  const { count, openCart } = useCart();
   const { categories } = useCategories();
   const wishlist = useWishlist();
   const { isAuthed, user } = useAuth();
@@ -84,14 +84,17 @@ export default function Navbar() {
               <span className="hidden sm:block">Login</span>
             </Link>
           )}
-          <Link to="/cart" className="relative rounded-full border border-maroon/20 px-4 py-2 text-sm font-medium text-maroon hover:bg-maroon hover:text-cream">
+          <button
+            onClick={openCart}
+            className="relative rounded-full border border-maroon/20 px-4 py-2 text-sm font-medium text-maroon transition hover:bg-maroon hover:text-cream"
+          >
             Cart
             {count > 0 && (
               <span className="absolute -right-2 -top-2 grid h-5 min-w-5 place-items-center rounded-full bg-gold px-1 text-xs font-bold text-ink">
                 {count}
               </span>
             )}
-          </Link>
+          </button>
         </div>
       </div>
 

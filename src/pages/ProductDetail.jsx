@@ -8,6 +8,7 @@ import Stars from "../components/Stars.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import Loader from "../components/Loader.jsx";
 import Lightbox from "../components/Lightbox.jsx";
+import RecentlyViewed, { recordRecentlyViewed } from "../components/RecentlyViewed.jsx";
 
 const PLACEHOLDER =
   "data:image/svg+xml;utf8," +
@@ -42,6 +43,7 @@ export default function ProductDetail() {
       .get(`/api/products/${slug}`)
       .then((r) => {
         setP(r.data);
+        recordRecentlyViewed(r.data);
         if (r.data.sizes?.length) setSize(r.data.sizes[0]);
         if (r.data.colors?.length) setColor(r.data.colors[0]);
       })
@@ -433,6 +435,8 @@ export default function ProductDetail() {
           </div>
         </div>
       )}
+
+      <RecentlyViewed excludeId={p.id} />
 
       <Lightbox src={lightbox} onClose={() => setLightbox(null)} />
     </div>

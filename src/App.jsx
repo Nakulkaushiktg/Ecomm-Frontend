@@ -3,6 +3,8 @@ import ScrollToTop from "./components/ScrollToTop.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import Banner from "./components/Banner.jsx";
+import CartDrawer from "./components/CartDrawer.jsx";
+import BackToTop from "./components/BackToTop.jsx";
 import Home from "./pages/Home.jsx";
 import Shop from "./pages/Shop.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
@@ -25,6 +27,8 @@ function StoreLayout({ children }) {
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
+      <CartDrawer />
+      <BackToTop />
     </div>
   );
 }

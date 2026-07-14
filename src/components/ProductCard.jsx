@@ -107,10 +107,20 @@ export default function ProductCard({ product }) {
               </span>
             </div>
           )}
-          <div className="absolute left-3 top-3 flex flex-col gap-1">
+          <div className="absolute left-3 top-3 z-[2] flex flex-col items-start gap-1">
             {product.is_bestseller && !outOfStock && (
               <span className="rounded-full bg-gradient-to-br from-gold-light to-gold px-2.5 py-1 text-xs font-semibold text-ink shadow-soft">
                 ★ Bestseller
+              </span>
+            )}
+            {product.is_new && !outOfStock && (
+              <span className="rounded-full bg-gradient-to-br from-emerald-500 to-green-600 px-2.5 py-1 text-xs font-semibold text-white shadow-soft">
+                ✦ New
+              </span>
+            )}
+            {product.is_trending && !outOfStock && (
+              <span className="rounded-full bg-gradient-to-br from-orange-500 to-red-500 px-2.5 py-1 text-xs font-semibold text-white shadow-soft">
+                🔥 Trending
               </span>
             )}
             {off > 0 && !outOfStock && (
