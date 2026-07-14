@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { api, rupee } from "../api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import Stars from "../components/Stars.jsx";
+import Loader from "../components/Loader.jsx";
 
 const STATUS_STYLE = {
   pending: "bg-amber-100 text-amber-700",
@@ -118,7 +119,7 @@ export default function Orders() {
       </div>
 
       {loading ? (
-        <p className="mt-10 text-ink/50">Loading…</p>
+        <Loader label="Loading your orders" />
       ) : orders.length === 0 ? (
         <div className="mt-10 text-center">
           <p className="text-ink/60">You haven't placed any orders yet.</p>

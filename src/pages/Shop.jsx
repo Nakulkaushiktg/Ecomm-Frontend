@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { api } from "../api.js";
 import { useCategories } from "../context/CategoriesContext.jsx";
 import ProductCard from "../components/ProductCard.jsx";
+import { ProductGridSkeleton } from "../components/Loader.jsx";
 
 export default function Shop() {
   const { category } = useParams();
@@ -35,7 +36,7 @@ export default function Shop() {
       </h1>
 
       {loading ? (
-        <p className="mt-10 text-ink/50">Loading…</p>
+        <ProductGridSkeleton />
       ) : products.length === 0 ? (
         <p className="mt-10 text-ink/50">No products in this category yet.</p>
       ) : (

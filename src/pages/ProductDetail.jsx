@@ -5,6 +5,7 @@ import { useCart } from "../context/CartContext.jsx";
 import { useCategories } from "../context/CategoriesContext.jsx";
 import Stars from "../components/Stars.jsx";
 import ProductCard from "../components/ProductCard.jsx";
+import Loader from "../components/Loader.jsx";
 
 const PLACEHOLDER =
   "data:image/svg+xml;utf8," +
@@ -99,7 +100,7 @@ export default function ProductDetail() {
         <Link to="/shop" className="btn-ghost mt-4">Back to shop</Link>
       </div>
     );
-  if (!p) return <div className="mx-auto max-w-3xl px-4 py-20 text-ink/50">Loading…</div>;
+  if (!p) return <Loader label="Loading product" />;
 
   // combined gallery: images first, then videos
   const media = [
