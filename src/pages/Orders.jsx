@@ -17,6 +17,8 @@ function ReviewForm({ item }) {
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -29,6 +31,23 @@ function ReviewForm({ item }) {
     return <span className="text-xs font-medium text-green-700">Thanks for your review ✓</span>;
   }
 
+  const onFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError("");
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const { data } = await api.post("/api/upload/review", fd);
+      setImageUrl(data.url);
+    } catch (err) {
+      setError(err.response?.data?.detail || "Image upload failed. Try a smaller photo (max 5MB).");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const submit = async () => {
     setError("");
     setBusy(true);
@@ -37,7 +56,7 @@ function ReviewForm({ item }) {
         name: "",
         rating,
         comment,
-        image_url: "",
+        image_url: imageUrl,
       });
       setDone(true);
     } catch (err) {
@@ -71,9 +90,31 @@ function ReviewForm({ item }) {
         value={comment}
         onChange={(e) => setComment(e.target.value)}
       />
+
+      {/* add a photo with your review */}
+      <div className="mt-2 flex items-center gap-3">
+        {imageUrl ? (
+          <div className="relative">
+            <img src={imageUrl} alt="review" className="h-16 w-16 rounded-lg border border-sand object-cover" />
+            <button
+              type="button"
+              onClick={() => setImageUrl("")}
+              className="absolute -right-2 -top-2 grid h-5 w-5 place-items-center rounded-full bg-maroon text-[10px] text-cream"
+            >
+              ✕
+            </button>
+          </div>
+        ) : (
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-dashed border-maroon/40 px-3 py-1.5 text-xs font-medium text-maroon hover:bg-maroon/5">
+            {uploading ? "Uploading…" : "📷 Add a photo"}
+            <input type="file" accept="image/*" onChange={onFile} disabled={uploading} className="hidden" />
+          </label>
+        )}
+      </div>
+
       {error && <p className="mt-1 text-xs text-red-700">{error}</p>}
       <div className="mt-2 flex gap-2">
-        <button onClick={submit} disabled={busy} className="btn-primary px-4 py-1.5 text-sm">
+        <button onClick={submit} disabled={busy || uploading} className="btn-primary px-4 py-1.5 text-sm">
           {busy ? "Submitting…" : "Submit Review"}
         </button>
         <button onClick={() => setOpen(false)} className="btn-ghost px-4 py-1.5 text-sm">

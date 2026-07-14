@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { api, rupee } from "../api.js";
 import { useCart } from "../context/CartContext.jsx";
+import { useToast } from "../context/ToastContext.jsx";
 import { useCategories } from "../context/CategoriesContext.jsx";
 import Stars from "../components/Stars.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import Loader from "../components/Loader.jsx";
+import Lightbox from "../components/Lightbox.jsx";
 
 const PLACEHOLDER =
   "data:image/svg+xml;utf8," +
@@ -16,7 +18,8 @@ const PLACEHOLDER =
 export default function ProductDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { add } = useCart();
+  const { add, items, setQty: setCartQty, remove } = useCart();
+  const { notify } = useToast();
   const { labelOf } = useCategories();
   const [p, setP] = useState(null);
   const [active, setActive] = useState(0);
@@ -27,6 +30,7 @@ export default function ProductDetail() {
   const [size, setSize] = useState("");
   const [color, setColor] = useState("");
   const [variantErr, setVariantErr] = useState("");
+  const [lightbox, setLightbox] = useState(null); // full-screen image url
 
   const loadReviews = () =>
     api.get(`/api/products/${slug}/reviews`).then((r) => setReviews(r.data)).catch(() => {});
@@ -90,7 +94,17 @@ export default function ProductDetail() {
       setVariantErr("This option is out of stock.");
       return;
     }
+    // compute the resulting cart quantity so the toast can show progress / stock cap
+    const cartKey = `${p.id}__${variantString() || ""}`;
+    const existing = items.find((i) => i.key === cartKey)?.quantity || 0;
+    const cap = availStock ?? Infinity;
+    const after = Math.min(existing + qty, cap);
     add({ ...p, price: curPrice }, qty, variantString(), size, color);
+    if (after > existing) {
+      notify(`Added to cart · ${after} in cart`);
+    } else {
+      notify(`Only ${cap} in stock — that's the max`, "!");
+    }
   };
 
   if (notFound)
@@ -127,7 +141,7 @@ export default function ProductDetail() {
       <div className="grid gap-10 md:grid-cols-2">
         {/* gallery */}
         <div className="md:sticky md:top-28 md:self-start">
-          <div className="aspect-square overflow-hidden rounded-2xl bg-sand">
+          <div className="group aspect-square overflow-hidden rounded-2xl bg-sand">
             {media[active]?.type === "video" ? (
               <video
                 src={media[active].url}
@@ -142,7 +156,8 @@ export default function ProductDetail() {
                 src={media[active]?.url}
                 alt={p.name}
                 onError={(e) => (e.currentTarget.src = PLACEHOLDER)}
-                className="h-full w-full object-cover"
+                onClick={() => setLightbox(media[active]?.url)}
+                className="h-full w-full cursor-zoom-in object-cover transition-transform duration-500 ease-out group-hover:scale-110"
               />
             )}
           </div>
@@ -273,24 +288,41 @@ export default function ProductDetail() {
             </div>
           )}
 
-          <div className="mt-8 flex items-center gap-4">
-            <div className="flex items-center rounded-full border border-sand">
-              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-4 py-2 text-lg">–</button>
-              <span className="w-8 text-center">{qty}</span>
-              <button
-                onClick={() => setQty((q) => (availStock ? Math.min(availStock, q + 1) : q + 1))}
-                disabled={availStock != null && qty >= availStock}
-                className="px-4 py-2 text-lg disabled:opacity-40"
-              >+</button>
-            </div>
-          </div>
+          {variantErr && <p className="mt-6 text-sm text-red-700">{variantErr}</p>}
 
-          {variantErr && <p className="mt-3 text-sm text-red-700">{variantErr}</p>}
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <button onClick={addToCart} disabled={p.stock <= 0} className="btn-ghost">
-              Add to Cart
-            </button>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            {(() => {
+              const cartKey = `${p.id}__${variantString() || ""}`;
+              const cartQty = items.find((i) => i.key === cartKey)?.quantity || 0;
+              const maxStock = availStock ?? Infinity;
+              if (cartQty === 0) {
+                return (
+                  <button onClick={addToCart} disabled={p.stock <= 0} className="btn-ghost">
+                    Add to Cart
+                  </button>
+                );
+              }
+              return (
+                <div className="flex items-center rounded-full bg-maroon px-2 py-1.5 text-cream">
+                  <button
+                    onClick={() =>
+                      cartQty === 1 ? remove(cartKey) : setCartQty(cartKey, cartQty - 1)
+                    }
+                    className="grid h-9 w-9 place-items-center rounded-full text-xl hover:bg-maroon-dark"
+                  >
+                    –
+                  </button>
+                  <span className="w-20 text-center text-sm font-medium">{cartQty} in cart</span>
+                  <button
+                    onClick={() => cartQty < maxStock && setCartQty(cartKey, cartQty + 1)}
+                    disabled={cartQty >= maxStock}
+                    className="grid h-9 w-9 place-items-center rounded-full text-xl hover:bg-maroon-dark disabled:opacity-40"
+                  >
+                    +
+                  </button>
+                </div>
+              );
+            })()}
             <button onClick={buyNow} disabled={p.stock <= 0} className="btn-primary">
               Buy Now
             </button>
@@ -379,7 +411,8 @@ export default function ProductDetail() {
                     <img
                       src={r.image_url}
                       alt="review"
-                      className="mt-3 h-28 w-28 rounded-lg border border-sand object-cover"
+                      onClick={() => setLightbox(r.image_url)}
+                      className="mt-3 h-28 w-28 cursor-zoom-in rounded-lg border border-sand object-cover transition hover:scale-105"
                     />
                   )}
                 </div>
@@ -400,6 +433,8 @@ export default function ProductDetail() {
           </div>
         </div>
       )}
+
+      <Lightbox src={lightbox} onClose={() => setLightbox(null)} />
     </div>
   );
 }

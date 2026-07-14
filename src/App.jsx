@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import Banner from "./components/Banner.jsx";
@@ -30,6 +31,8 @@ function StoreLayout({ children }) {
 
 export default function App() {
   return (
+    <>
+    <ScrollToTop />
     <Routes>
       {/* storefront */}
       <Route path="/" element={<StoreLayout><Home /></StoreLayout>} />
@@ -48,5 +51,6 @@ export default function App() {
       <Route path="/account" element={<StoreLayout><Account /></StoreLayout>} />
       <Route path="/orders" element={<StoreLayout><Orders /></StoreLayout>} />
     </Routes>
+    </>
   );
 }

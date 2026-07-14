@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { rupee } from "../api.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useWishlist } from "../context/WishlistContext.jsx";
+import { useToast } from "../context/ToastContext.jsx";
 import Stars from "./Stars.jsx";
 
 const PLACEHOLDER =
@@ -12,11 +13,13 @@ const PLACEHOLDER =
   );
 
 export default function ProductCard({ product }) {
-  const { add, items, setQty } = useCart();
+  const { add, items, setQty, remove } = useCart();
   const wishlist = useWishlist();
+  const { notify } = useToast();
   const navigate = useNavigate();
   const images = product.images?.length ? product.images : [PLACEHOLDER];
   const [idx, setIdx] = useState(0);
+  const [hovered, setHovered] = useState(false);
 
   // wishlist needs an account; send guests to login
   const onWishlist = () => {
@@ -24,17 +27,21 @@ export default function ProductCard({ product }) {
       navigate("/login?redirect=/wishlist");
       return;
     }
+    const wasSaved = wishlist.has(product.id);
     wishlist.toggle(product.id);
+    notify(wasSaved ? "Removed from wishlist" : "Saved to wishlist", wasSaved ? "♡" : "♥");
   };
 
-  // auto-rotate through images if there is more than one
+  // auto-rotate through images if there is more than one — paused while hovering
   useEffect(() => {
-    if (images.length <= 1) return;
+    if (images.length <= 1 || hovered) return;
     const t = setInterval(() => setIdx((i) => (i + 1) % images.length), 2500);
     return () => clearInterval(t);
-  }, [images.length]);
+  }, [images.length, hovered]);
 
   const img = images[idx] || PLACEHOLDER;
+  // the "next angle" shown on hover
+  const nextImg = images.length > 1 ? images[(idx + 1) % images.length] : null;
   // when the product has variants, show the first variant's price (per-size pricing)
   const fv = product.variants?.length ? product.variants[0] : null;
   const dPrice = fv && fv.price > 0 ? fv.price : product.price;
@@ -53,19 +60,35 @@ export default function ProductCard({ product }) {
   return (
     <div className="card group relative overflow-hidden hover-lift">
       <Link to={`/product/${product.slug}`} className="block">
-        <div className="relative aspect-square overflow-hidden bg-sand">
+        <div
+          className="relative aspect-square overflow-hidden bg-sand"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        >
           <img
             key={idx}
             src={img}
             alt={product.name}
             onError={(e) => (e.currentTarget.src = PLACEHOLDER)}
-            className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-110"
+            className={`h-full w-full object-cover transition duration-700 ease-out group-hover:scale-110 ${
+              nextImg ? "group-hover:opacity-0" : ""
+            }`}
             style={{ animation: "fadeIn .7s ease" }}
           />
+          {/* next angle fades in on hover, giving an "angle change" reveal */}
+          {nextImg && (
+            <img
+              src={nextImg}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full scale-105 object-cover opacity-0 transition duration-700 ease-out group-hover:scale-110 group-hover:opacity-100"
+            />
+          )}
           {/* soft gradient veil deepens on hover for a premium feel */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+          {/* dots showing which image is active */}
           {images.length > 1 && (
-            <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1.5">
+            <div className="absolute bottom-2 left-1/2 z-[2] flex -translate-x-1/2 gap-1.5">
               {images.map((_, i) => (
                 <span
                   key={i}
@@ -74,6 +97,14 @@ export default function ProductCard({ product }) {
                   }`}
                 />
               ))}
+            </div>
+          )}
+          {/* Quick View pill slides up on hover */}
+          {!outOfStock && (
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] translate-y-full p-3 transition-transform duration-300 group-hover:translate-y-0">
+              <span className="block rounded-full bg-cream/95 py-2 text-center text-sm font-semibold text-maroon shadow-soft backdrop-blur">
+                Quick View
+              </span>
             </div>
           )}
           <div className="absolute left-3 top-3 flex flex-col gap-1">
@@ -145,13 +176,19 @@ export default function ProductCard({ product }) {
             Select Options
           </Link>
         ) : qty === 0 ? (
-          <button onClick={() => add(product)} className="btn-primary mt-3 w-full">
+          <button
+            onClick={() => {
+              add(product);
+              notify("Added to cart");
+            }}
+            className="btn-primary mt-3 w-full"
+          >
             Add to Cart
           </button>
         ) : (
           <div className="mt-3 flex items-center justify-between rounded-full bg-maroon px-2 py-1 text-cream">
             <button
-              onClick={() => setQty(cartKey, qty - 1)}
+              onClick={() => (qty === 1 ? remove(cartKey) : setQty(cartKey, qty - 1))}
               className="grid h-8 w-8 place-items-center rounded-full hover:bg-maroon-dark text-lg"
             >
               –
