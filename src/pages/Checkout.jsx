@@ -181,8 +181,9 @@ export default function Checkout() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="font-serif text-3xl text-maroon">Checkout</h1>
+    <div className="mx-auto max-w-6xl px-4 py-12">
+      <span className="text-xs uppercase tracking-[0.3em] text-gold">Almost there</span>
+      <h1 className="mt-1 font-serif text-4xl text-maroon">Checkout</h1>
       <form onSubmit={submit} className="mt-8 grid gap-8 lg:grid-cols-2">
         {/* delivery details */}
         <div className="card p-6">
@@ -357,8 +358,8 @@ export default function Checkout() {
                 <button
                   type="button"
                   onClick={() => setMethod("razorpay")}
-                  className={`col-span-2 rounded-xl border p-4 text-left ${
-                    method === "razorpay" ? "border-maroon bg-maroon/5" : "border-sand"
+                  className={`col-span-2 rounded-xl border p-4 text-left transition ${
+                    method === "razorpay" ? "border-maroon bg-maroon/5 shadow-soft ring-1 ring-maroon/40" : "border-sand hover:border-maroon/40"
                   }`}
                 >
                   <div className="flex items-center gap-2 font-medium">
@@ -372,8 +373,8 @@ export default function Checkout() {
                 <button
                   type="button"
                   onClick={() => setMethod("cod")}
-                  className={`col-span-2 rounded-xl border p-4 text-left ${
-                    method === "cod" ? "border-maroon bg-maroon/5" : "border-sand"
+                  className={`col-span-2 rounded-xl border p-4 text-left transition ${
+                    method === "cod" ? "border-maroon bg-maroon/5 shadow-soft ring-1 ring-maroon/40" : "border-sand hover:border-maroon/40"
                   }`}
                 >
                   <div className="font-medium">Cash on Delivery</div>

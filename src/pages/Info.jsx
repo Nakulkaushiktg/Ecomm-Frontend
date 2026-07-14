@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import Reveal from "../components/Reveal.jsx";
 
 const PAGES = {
   faq: {
@@ -29,14 +30,18 @@ export default function Info() {
   const data = PAGES[page] || PAGES.faq;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="font-serif text-4xl text-maroon">{data.title}</h1>
-      <div className="mt-8 space-y-5">
-        {data.sections.map(([q, a]) => (
-          <div key={q} className="card p-5">
-            <h3 className="font-serif text-lg text-ink">{q}</h3>
-            <p className="mt-1 text-sm leading-relaxed text-ink/70">{a}</p>
-          </div>
+    <div className="mx-auto max-w-3xl px-4 py-16">
+      <span className="text-xs uppercase tracking-[0.3em] text-gold">Help &amp; Info</span>
+      <h1 className="mt-1 font-serif text-4xl text-maroon md:text-5xl">{data.title}</h1>
+      <div className="mt-4 h-px w-24 bg-gradient-to-r from-gold to-transparent" />
+      <div className="mt-8 space-y-4">
+        {data.sections.map(([q, a], i) => (
+          <Reveal key={q} delay={i * 60}>
+            <div className="card hover-lift border-l-4 border-l-gold p-5">
+              <h3 className="font-serif text-lg text-ink">{q}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-ink/70">{a}</p>
+            </div>
+          </Reveal>
         ))}
       </div>
     </div>

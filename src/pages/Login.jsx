@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../api.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import Reveal from "../components/Reveal.jsx";
 
 export default function Login() {
   const { login, register } = useAuth();
@@ -50,7 +51,11 @@ export default function Login() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
+      <Reveal>
       <div className="card p-8">
+        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-maroon to-maroon-dark text-2xl text-cream shadow-soft">
+          {mode === "signup" ? "✦" : "🧶"}
+        </div>
         <h1 className="text-center font-serif text-3xl text-maroon">
           {mode === "login" ? "Welcome Back" : mode === "signup" ? "Create Account" : "Forgot Password"}
         </h1>
@@ -145,6 +150,7 @@ export default function Login() {
           <Link to="/" className="hover:underline">← Back to shop</Link>
         </p>
       </div>
+      </Reveal>
     </div>
   );
 }

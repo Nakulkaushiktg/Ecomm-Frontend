@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { api } from "../api.js";
 import { useCategories } from "../context/CategoriesContext.jsx";
 import ProductCard from "../components/ProductCard.jsx";
+import Reveal from "../components/Reveal.jsx";
 
 export default function Home() {
   const { categories } = useCategories();
@@ -36,48 +37,71 @@ export default function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-maroon text-cream">
+      <section className="relative overflow-hidden bg-gradient-to-br from-maroon via-maroon to-maroon-dark text-cream">
+        {/* floating gold glow */}
+        <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 animate-float rounded-full bg-gold/20 blur-3xl" />
+        <div
+          className="pointer-events-none absolute -bottom-28 right-0 h-80 w-80 animate-float rounded-full bg-gold-light/10 blur-3xl"
+          style={{ animationDelay: "2s" }}
+        />
         <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_20%_20%,#E8C77E_0,transparent_45%),radial-gradient(circle_at_80%_60%,#C39A4B_0,transparent_40%)]" />
-        <div className="relative mx-auto grid max-w-7xl gap-8 px-4 py-20 md:grid-cols-2 md:py-28">
+        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-24 md:grid-cols-2 md:py-32">
           <div className="flex flex-col justify-center">
-            <span className="mb-3 text-xs uppercase tracking-[0.3em] text-gold-light">
-              Handmade with devotion
+            <span className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5 text-xs uppercase tracking-[0.3em] text-gold-light">
+              ✦ Handmade with devotion
             </span>
-            <h1 className="font-serif text-4xl leading-tight md:text-6xl">
-              Woolen warmth &amp; sacred craft, made by hand.
+            <h1 className="font-serif text-5xl leading-[1.05] md:text-7xl">
+              Woolen warmth &amp; <span className="text-gradient-gold">sacred craft</span>, made by hand.
             </h1>
-            <p className="mt-5 max-w-md text-cream/80">
+            <p className="mt-6 max-w-md text-lg text-cream/80">
               Discover handwoven woolens, pure cotton wear, divine idols and
               sacred jewellery — crafted by Indian artisans, delivered to your
               door.
             </p>
-            <div className="mt-8 flex gap-3">
-              <Link to="/shop" className="rounded-full bg-gold px-7 py-3 text-sm font-semibold text-ink hover:bg-gold-light">
+            <div className="mt-9 flex flex-wrap gap-4">
+              <Link
+                to="/shop"
+                className="group inline-flex items-center gap-2 rounded-full bg-gold px-8 py-3.5 text-sm font-semibold text-ink shadow-soft transition duration-300 hover:-translate-y-0.5 hover:bg-gold-light"
+              >
                 Shop Collection
+                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
               </Link>
+              <a
+                href={customWa}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-cream/30 px-8 py-3.5 text-sm font-semibold text-cream transition duration-300 hover:border-cream hover:bg-cream/10"
+              >
+                Custom Order
+              </a>
             </div>
           </div>
-          <div className="block">
+          <div className="relative flex items-center justify-center">
+            <div
+              className="pointer-events-none absolute inset-4 animate-float rounded-[2.2rem] border border-gold/30"
+              style={{ animationDelay: "1s" }}
+            />
             <img
               src="/home.png"
               alt="Handmade woolens"
-              className="h-56 w-full rounded-3xl object-cover shadow-soft sm:h-72 md:h-full"
+              className="relative h-64 w-full rounded-[2rem] object-cover shadow-2xl ring-1 ring-gold/20 sm:h-80 md:h-[26rem]"
             />
           </div>
         </div>
       </section>
 
       {/* Categories */}
-      <section className="mx-auto max-w-7xl px-4 py-16">
-        <h2 className="text-center font-serif text-3xl text-maroon">
-          Shop by Category
-        </h2>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.map((c) => (
+      <section className="mx-auto max-w-7xl px-4 py-20">
+        <Reveal className="text-center">
+          <span className="gold-divider mb-3 text-xs uppercase tracking-[0.3em]">Curated</span>
+          <h2 className="font-serif text-4xl text-maroon">Shop by Category</h2>
+        </Reveal>
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {categories.map((c, i) => (
+            <Reveal key={c.key} delay={i * 80}>
             <Link
-              key={c.key}
               to={`/shop/${c.key}`}
-              className="card group relative overflow-hidden transition hover:-translate-y-1 hover:shadow-soft"
+              className="card group relative block overflow-hidden hover-lift"
             >
               <div className="relative aspect-square overflow-hidden bg-sand">
                 {c.image ? (
@@ -96,26 +120,33 @@ export default function Home() {
                 {c.label}
               </span>
             </Link>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {/* Featured */}
-      <section className="mx-auto max-w-7xl px-4 pb-16">
-        <div className="mb-8 flex items-end justify-between">
-          <h2 className="font-serif text-3xl text-maroon">Featured Picks</h2>
-          <Link to="/shop" className="text-sm font-medium text-maroon hover:underline">
-            View all →
+      <section className="mx-auto max-w-7xl px-4 pb-20">
+        <div className="mb-10 flex items-end justify-between">
+          <div>
+            <span className="text-xs uppercase tracking-[0.3em] text-gold">Handpicked</span>
+            <h2 className="mt-1 font-serif text-4xl text-maroon">Featured Picks</h2>
+          </div>
+          <Link to="/shop" className="group inline-flex items-center gap-1 text-sm font-medium text-maroon">
+            View all
+            <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
           </Link>
         </div>
         {featured.length === 0 ? (
           <p className="text-ink/50">No products yet. Add some from the admin panel.</p>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {featured.map((p) => {
+            {featured.map((p, i) => {
               const { price, mrp } = getDisplayPrice(p);
               return (
-                <ProductCard key={p.id} product={{ ...p, price, mrp }} />
+                <Reveal key={p.id} delay={i * 70}>
+                  <ProductCard product={{ ...p, price, mrp }} />
+                </Reveal>
               );
             })}
           </div>
@@ -156,18 +187,22 @@ export default function Home() {
       </section>
 
       {/* Trust band */}
-      <section className="bg-sand/50">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 text-center sm:grid-cols-3">
+      <section className="border-y border-sand bg-sand/50">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 text-center sm:grid-cols-3">
           {[
             ["🪡", "Truly Handmade", "Crafted by skilled artisans"],
             ["🔒", "Easy UPI Payment", "PhonePe · Paytm · GPay"],
             ["🚚", "Pan-India Delivery", "Order confirmed on WhatsApp"],
-          ].map(([icon, t, s]) => (
-            <div key={t}>
-              <div className="text-3xl">{icon}</div>
-              <h4 className="mt-2 font-serif text-lg text-maroon">{t}</h4>
-              <p className="text-sm text-ink/60">{s}</p>
-            </div>
+          ].map(([icon, t, s], i) => (
+            <Reveal key={t} delay={i * 100}>
+              <div className="flex flex-col items-center">
+                <div className="grid h-16 w-16 place-items-center rounded-full bg-cream text-3xl shadow-soft ring-1 ring-gold/30">
+                  {icon}
+                </div>
+                <h4 className="mt-4 font-serif text-lg text-maroon">{t}</h4>
+                <p className="text-sm text-ink/60">{s}</p>
+              </div>
+            </Reveal>
           ))}
         </div>
       </section>

@@ -19,13 +19,13 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-sand/70 bg-cream/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-sand/70 bg-cream/80 shadow-[0_4px_24px_-16px_rgba(91,33,28,0.4)] backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="group flex items-center gap-2">
           <img
             src="/logo.png"
             alt="Kirti Thread Art"
-            className="h-11 w-11 rounded-full object-cover ring-2 ring-maroon/20"
+            className="h-11 w-11 rounded-full object-cover ring-2 ring-gold/40 transition duration-300 group-hover:ring-gold"
           />
           <span className="leading-tight">
             <span className="block font-serif text-xl font-semibold text-maroon">
@@ -98,12 +98,22 @@ export default function Navbar() {
       {/* category row */}
       <div className="border-t border-sand/50">
         <nav className="mx-auto flex max-w-7xl items-center gap-6 overflow-x-auto px-4 py-2 text-sm font-medium">
-          <NavLink to="/shop" className="whitespace-nowrap hover:text-maroon">All</NavLink>
+          <NavLink
+            to="/shop"
+            end
+            className={({ isActive }) =>
+              `nav-link whitespace-nowrap hover:text-maroon ${isActive ? "active text-maroon" : "text-ink/70"}`
+            }
+          >
+            All
+          </NavLink>
           {categories.map((c) => (
             <NavLink
               key={c.key}
               to={`/shop/${c.key}`}
-              className="whitespace-nowrap text-ink/70 hover:text-maroon"
+              className={({ isActive }) =>
+                `nav-link whitespace-nowrap hover:text-maroon ${isActive ? "active text-maroon" : "text-ink/70"}`
+              }
             >
               {c.label}
             </NavLink>

@@ -16,12 +16,13 @@ export default function Cart() {
     );
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="font-serif text-3xl text-maroon">Your Cart</h1>
+    <div className="mx-auto max-w-5xl px-4 py-12">
+      <span className="text-xs uppercase tracking-[0.3em] text-gold">Review &amp; Checkout</span>
+      <h1 className="mt-1 font-serif text-4xl text-maroon">Your Cart</h1>
       <div className="mt-8 grid gap-8 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           {items.map((i) => (
-            <div key={i.key} className="card flex items-center gap-4 p-4">
+            <div key={i.key} className="card flex items-center gap-4 p-4 transition hover:ring-gold/40">
               <div className="h-20 w-20 overflow-hidden rounded-lg bg-sand">
                 {i.image && <img src={i.image} alt={i.name} className="h-full w-full object-cover" />}
               </div>
@@ -52,7 +53,7 @@ export default function Cart() {
           ))}
         </div>
 
-        <div className="card h-fit p-6">
+        <div className="card h-fit p-6 lg:sticky lg:top-28">
           <h3 className="font-serif text-xl text-maroon">Order Summary</h3>
           <div className="mt-4 flex justify-between text-sm">
             <span className="text-ink/60">Subtotal</span>
@@ -69,6 +70,9 @@ export default function Cart() {
           <button onClick={() => navigate("/checkout")} className="btn-primary mt-6 w-full">
             Proceed to Checkout
           </button>
+          <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-ink/50">
+            🔒 Secure UPI & card payment
+          </p>
         </div>
       </div>
     </div>

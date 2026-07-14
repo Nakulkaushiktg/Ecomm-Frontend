@@ -53,11 +53,15 @@ export default function TrackOrder() {
     : -1;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="font-serif text-3xl text-maroon">Track Your Order</h1>
-      <p className="mt-2 text-ink/60">
-        Enter your Order ID and the phone number used at checkout.
-      </p>
+    <div className="mx-auto max-w-2xl px-4 py-16">
+      <div className="text-center">
+        <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-sand text-3xl ring-1 ring-gold/30">📦</div>
+        <span className="mt-4 block text-xs uppercase tracking-[0.3em] text-gold">Where's my order</span>
+        <h1 className="mt-1 font-serif text-4xl text-maroon">Track Your Order</h1>
+        <p className="mt-2 text-ink/60">
+          Enter your Order ID and the phone number used at checkout.
+        </p>
+      </div>
 
       <form onSubmit={track} className="card mt-6 flex flex-wrap items-end gap-3 p-6">
         <div className="flex-1">

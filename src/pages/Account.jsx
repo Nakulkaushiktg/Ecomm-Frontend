@@ -48,26 +48,36 @@ export default function Account() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <div className="flex items-center justify-between">
-        <h1 className="font-serif text-3xl text-maroon">My Account</h1>
-        <div className="flex gap-3 text-sm">
-          <Link to="/orders" className="font-medium text-maroon hover:underline">
-            My Orders →
-          </Link>
-          <button
-            onClick={() => {
-              logout();
-              navigate("/");
-            }}
-            className="text-ink/50 hover:text-maroon"
-          >
-            Logout
-          </button>
+    <div className="mx-auto max-w-3xl px-4 py-12">
+      {/* profile banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-maroon to-maroon-dark p-6 text-cream shadow-soft">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 animate-float rounded-full bg-gold/20 blur-2xl" />
+        <div className="relative flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="grid h-16 w-16 place-items-center rounded-full bg-gold text-2xl font-semibold text-ink shadow-soft">
+              {(user?.name?.[0] || "U").toUpperCase()}
+            </div>
+            <div>
+              <h1 className="font-serif text-3xl">{user?.name?.split(" ")[0] || "My Account"}</h1>
+              <p className="text-sm text-cream/70">{user.email}</p>
+            </div>
+          </div>
+          <div className="flex flex-col items-end gap-2 text-sm">
+            <Link to="/orders" className="font-medium text-gold-light hover:text-gold">
+              My Orders →
+            </Link>
+            <button
+              onClick={() => {
+                logout();
+                navigate("/");
+              }}
+              className="text-cream/60 hover:text-cream"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
-
-      <p className="mt-1 text-sm text-ink/50">{user.email}</p>
 
       <form onSubmit={submit} className="card mt-6 grid gap-4 p-6">
         <h2 className="font-serif text-xl text-maroon">Profile & Saved Address</h2>

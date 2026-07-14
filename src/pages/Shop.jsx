@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../api.js";
 import { useCategories } from "../context/CategoriesContext.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import { ProductGridSkeleton } from "../components/Loader.jsx";
+import Reveal from "../components/Reveal.jsx";
 
 export default function Shop() {
   const { category } = useParams();
@@ -26,23 +27,35 @@ export default function Shop() {
   }, [category, search]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10">
-      <h1 className="font-serif text-3xl text-maroon">
-        {search
-          ? `Search: "${search}"`
-          : category
-          ? labelOf(category)
-          : "All Products"}
-      </h1>
+    <div className="mx-auto max-w-7xl px-4 py-12">
+      <div>
+        <span className="text-xs uppercase tracking-[0.3em] text-gold">
+          {search ? "Search Results" : "Collection"}
+        </span>
+        <h1 className="mt-1 font-serif text-4xl text-maroon">
+          {search
+            ? `“${search}”`
+            : category
+            ? labelOf(category)
+            : "All Products"}
+        </h1>
+        <div className="mt-4 h-px w-24 bg-gradient-to-r from-gold to-transparent" />
+      </div>
 
       {loading ? (
         <ProductGridSkeleton />
       ) : products.length === 0 ? (
-        <p className="mt-10 text-ink/50">No products in this category yet.</p>
+        <div className="mt-16 text-center">
+          <div className="text-5xl">🧺</div>
+          <p className="mt-3 text-ink/60">No products in this category yet.</p>
+          <Link to="/shop" className="btn-ghost mt-6">Browse all products</Link>
+        </div>
       ) : (
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {products.map((p, i) => (
+            <Reveal key={p.id} delay={(i % 4) * 70}>
+              <ProductCard product={p} />
+            </Reveal>
           ))}
         </div>
       )}

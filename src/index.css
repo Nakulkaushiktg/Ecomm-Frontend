@@ -20,6 +20,30 @@
   40% { opacity: 1; transform: translateY(-3px); }
 }
 
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes fade-up {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shine-sweep {
+  100% { left: 130%; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.5); }
+  60% { transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 @layer base {
   body {
     @apply bg-cream text-ink font-sans antialiased;
@@ -31,27 +55,118 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-maroon px-6 py-3
-      text-sm font-medium text-cream transition hover:bg-maroon-dark
-      disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full
+      bg-gradient-to-br from-maroon to-maroon-dark px-6 py-3 text-sm font-medium text-cream
+      shadow-[0_8px_20px_-8px_rgba(123,45,38,0.6)] transition-all duration-300
+      hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-8px_rgba(123,45,38,0.7)]
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none;
+  }
+  /* glossy light sweep on hover */
+  .btn-primary::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+  }
+  .btn-primary:hover::after {
+    animation: shine-sweep 0.7s ease;
   }
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 rounded-full border border-maroon/30
-      px-6 py-3 text-sm font-medium text-maroon transition hover:bg-maroon hover:text-cream;
+      px-6 py-3 text-sm font-medium text-maroon transition-all duration-300
+      hover:border-maroon hover:bg-maroon hover:text-cream hover:-translate-y-0.5
+      hover:shadow-[0_12px_26px_-10px_rgba(123,45,38,0.6)];
   }
   .input {
     @apply w-full rounded-lg border border-sand bg-white px-4 py-2.5 text-sm
-      outline-none focus:border-gold focus:ring-2 focus:ring-gold/30;
+      outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/30;
   }
   .label {
     @apply mb-1 block text-xs font-medium uppercase tracking-wide text-ink/60;
   }
   .card {
-    @apply rounded-2xl bg-white shadow-soft;
+    @apply rounded-2xl bg-white shadow-soft ring-1 ring-sand/60 transition-all duration-300;
   }
 }
 
 @layer utilities {
+  /* gentle lift + deeper shadow on hover (cards, tiles) */
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1.5
+      hover:shadow-[0_24px_44px_-20px_rgba(91,33,28,0.4)];
+  }
+
+  /* ornate centered divider with gold gradient rules + diamond */
+  .gold-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: #C39A4B;
+  }
+  .gold-divider::before,
+  .gold-divider::after {
+    content: "";
+    height: 1px;
+    width: 3.5rem;
+    background: linear-gradient(90deg, transparent, #C39A4B);
+  }
+  .gold-divider::after {
+    background: linear-gradient(90deg, #C39A4B, transparent);
+  }
+
+  /* animated underline for nav links */
+  .nav-link {
+    position: relative;
+  }
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    height: 2px;
+    width: 0;
+    background: #7B2D26;
+    transition: width 0.3s ease;
+  }
+  .nav-link:hover::after,
+  .nav-link.active::after {
+    width: 100%;
+  }
+
+  /* scroll-reveal: hidden until .in-view is added by <Reveal> */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  .reveal.in-view {
+    animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-marquee {
+    animation: marquee 22s linear infinite;
+  }
+
+  .animate-pop {
+    animation: pop-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* shimmering gold gradient text for accents */
+  .text-gradient-gold {
+    background: linear-gradient(90deg, #C39A4B, #E8C77E, #C39A4B);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
   /* three concentric rings, spinning like a spool of thread */
   .loader-ring {
     position: relative;

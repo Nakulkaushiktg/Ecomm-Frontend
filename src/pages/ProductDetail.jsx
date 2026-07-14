@@ -126,7 +126,7 @@ export default function ProductDetail() {
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="grid gap-10 md:grid-cols-2">
         {/* gallery */}
-        <div>
+        <div className="md:sticky md:top-28 md:self-start">
           <div className="aspect-square overflow-hidden rounded-2xl bg-sand">
             {media[active]?.type === "video" ? (
               <video
@@ -294,6 +294,13 @@ export default function ProductDetail() {
             <button onClick={buyNow} disabled={p.stock <= 0} className="btn-primary">
               Buy Now
             </button>
+          </div>
+
+          {/* trust row */}
+          <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 border-t border-sand pt-5 text-xs text-ink/60">
+            <span className="inline-flex items-center gap-1.5">🪡 Truly handmade</span>
+            <span className="inline-flex items-center gap-1.5">🔒 Secure payment</span>
+            <span className="inline-flex items-center gap-1.5">🚚 Pan-India delivery</span>
           </div>
         </div>
       </div>

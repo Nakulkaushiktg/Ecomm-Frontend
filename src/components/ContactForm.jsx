@@ -29,11 +29,12 @@ export default function ContactForm() {
   };
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-sand bg-white shadow-soft">
+    <div className="overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-sand/60">
       <div className="grid md:grid-cols-5">
         {/* left accent panel */}
-        <div className="bg-maroon p-7 text-cream md:col-span-2">
-          <span className="text-xs uppercase tracking-[0.25em] text-gold-light">
+        <div className="relative overflow-hidden bg-gradient-to-br from-maroon to-maroon-dark p-7 text-cream md:col-span-2">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 animate-float rounded-full bg-gold/20 blur-2xl" />
+          <span className="relative text-xs uppercase tracking-[0.25em] text-gold-light">
             We're here for you
           </span>
           <h3 className="mt-2 font-serif text-2xl">Get in Touch</h3>

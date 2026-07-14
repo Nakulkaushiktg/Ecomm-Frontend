@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
+import Reveal from "../components/Reveal.jsx";
 
 export default function About() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
-      <span className="text-xs uppercase tracking-[0.3em] text-gold">Our Story</span>
-      <h1 className="mt-2 font-serif text-4xl text-maroon">Handmade with Devotion</h1>
+    <div className="mx-auto max-w-3xl px-4 py-16">
+      <Reveal className="text-center">
+        <span className="gold-divider mb-3 text-xs uppercase tracking-[0.3em]">Our Story</span>
+        <h1 className="font-serif text-4xl text-maroon md:text-5xl">Handmade with Devotion</h1>
+      </Reveal>
 
-      <div className="mt-6 space-y-5 leading-relaxed text-ink/75">
+      <div className="mt-8 space-y-5 text-center leading-relaxed text-ink/75">
         <p>
           Kirti Thread Art began with a simple belief — that things made by hand carry
           a warmth that machines can never replicate. Every shawl we weave, every idol
@@ -28,21 +31,25 @@ export default function About() {
         </p>
       </div>
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-3 text-center">
+      <div className="mt-12 grid gap-5 sm:grid-cols-3 text-center">
         {[
           ["🪡", "Truly Handmade", "By skilled Indian artisans"],
           ["🌿", "Made with Care", "Small batches, real quality"],
           ["🤝", "Supporting Crafts", "Fair work for artisans"],
-        ].map(([icon, t, s]) => (
-          <div key={t} className="card p-6">
-            <div className="text-3xl">{icon}</div>
-            <h3 className="mt-2 font-serif text-lg text-maroon">{t}</h3>
-            <p className="text-sm text-ink/60">{s}</p>
-          </div>
+        ].map(([icon, t, s], i) => (
+          <Reveal key={t} delay={i * 100}>
+            <div className="card hover-lift p-7">
+              <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-sand text-3xl ring-1 ring-gold/30">
+                {icon}
+              </div>
+              <h3 className="mt-4 font-serif text-lg text-maroon">{t}</h3>
+              <p className="text-sm text-ink/60">{s}</p>
+            </div>
+          </Reveal>
         ))}
       </div>
 
-      <div className="mt-10 text-center">
+      <div className="mt-12 text-center">
         <Link to="/shop" className="btn-primary">Explore Our Collection</Link>
       </div>
     </div>

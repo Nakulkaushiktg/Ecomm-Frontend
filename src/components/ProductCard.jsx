@@ -51,7 +51,7 @@ export default function ProductCard({ product }) {
   const canAddMore = qty < product.stock;
 
   return (
-    <div className="card group relative overflow-hidden">
+    <div className="card group relative overflow-hidden hover-lift">
       <Link to={`/product/${product.slug}`} className="block">
         <div className="relative aspect-square overflow-hidden bg-sand">
           <img
@@ -59,9 +59,11 @@ export default function ProductCard({ product }) {
             src={img}
             alt={product.name}
             onError={(e) => (e.currentTarget.src = PLACEHOLDER)}
-            className="h-full w-full object-cover transition-opacity duration-700 group-hover:scale-105"
+            className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-110"
             style={{ animation: "fadeIn .7s ease" }}
           />
+          {/* soft gradient veil deepens on hover for a premium feel */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
           {images.length > 1 && (
             <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1.5">
               {images.map((_, i) => (
@@ -76,12 +78,12 @@ export default function ProductCard({ product }) {
           )}
           <div className="absolute left-3 top-3 flex flex-col gap-1">
             {product.is_bestseller && !outOfStock && (
-              <span className="rounded-full bg-gold px-2.5 py-1 text-xs font-semibold text-ink">
+              <span className="rounded-full bg-gradient-to-br from-gold-light to-gold px-2.5 py-1 text-xs font-semibold text-ink shadow-soft">
                 ★ Bestseller
               </span>
             )}
             {off > 0 && !outOfStock && (
-              <span className="rounded-full bg-maroon px-2.5 py-1 text-xs font-semibold text-cream">
+              <span className="rounded-full bg-gradient-to-br from-maroon to-maroon-dark px-2.5 py-1 text-xs font-semibold text-cream shadow-soft">
                 {off}% OFF
               </span>
             )}
@@ -96,7 +98,7 @@ export default function ProductCard({ product }) {
       <button
         onClick={onWishlist}
         title="Save to wishlist"
-        className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-cream/90 text-lg shadow-soft transition hover:scale-110"
+        className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-cream/80 text-lg shadow-soft ring-1 ring-white/50 backdrop-blur transition hover:scale-110 hover:bg-cream active:scale-95"
       >
         <span className={wishlist.has(product.id) ? "text-maroon" : "text-ink/40"}>
           {wishlist.has(product.id) ? "♥" : "♡"}

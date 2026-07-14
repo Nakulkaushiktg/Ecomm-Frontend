@@ -4,7 +4,8 @@ import { useCategories } from "../context/CategoriesContext.jsx";
 export default function Footer() {
   const { categories } = useCategories();
   return (
-    <footer className="mt-20 border-t border-sand bg-sand/40">
+    <footer className="mt-20 bg-sand/40">
+      <div className="h-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">

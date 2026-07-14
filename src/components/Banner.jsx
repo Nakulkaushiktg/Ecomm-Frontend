@@ -11,9 +11,19 @@ export default function Banner() {
   if (!cfg?.banner_active || !cfg?.banner_text) return null;
 
   return (
-    <div className="overflow-hidden bg-gold text-ink">
-      <div className="whitespace-nowrap py-2 text-center text-sm font-medium tracking-wide">
-        {cfg.banner_text}
+    <div className="overflow-hidden bg-gradient-to-r from-gold via-gold-light to-gold py-2 text-ink">
+      <div className="flex w-max animate-marquee whitespace-nowrap text-sm font-medium tracking-wide">
+        {/* rendered twice for a seamless infinite loop */}
+        {[0, 1].map((n) => (
+          <span key={n} className="flex">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <span key={i} className="mx-8 inline-flex items-center gap-2">
+                <span className="text-maroon">✦</span>
+                {cfg.banner_text}
+              </span>
+            ))}
+          </span>
+        ))}
       </div>
     </div>
   );
