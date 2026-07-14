@@ -29,11 +29,18 @@ export default function Cart() {
                 <h3 className="font-serif text-lg text-ink">{i.name}</h3>
                 {i.variant && <p className="text-xs text-ink/50">{i.variant}</p>}
                 <p className="text-sm text-maroon">{rupee(i.price)}</p>
+                {i.stock != null && i.quantity >= i.stock && (
+                  <p className="text-xs text-orange-600">Only {i.stock} in stock</p>
+                )}
               </div>
               <div className="flex items-center rounded-full border border-sand">
                 <button onClick={() => setQty(i.key, i.quantity - 1)} className="px-3 py-1.5">–</button>
                 <span className="w-7 text-center text-sm">{i.quantity}</span>
-                <button onClick={() => setQty(i.key, i.quantity + 1)} className="px-3 py-1.5">+</button>
+                <button
+                  onClick={() => setQty(i.key, i.quantity + 1)}
+                  disabled={i.stock != null && i.quantity >= i.stock}
+                  className="px-3 py-1.5 disabled:opacity-40"
+                >+</button>
               </div>
               <div className="w-20 text-right font-semibold text-ink">
                 {rupee(i.price * i.quantity)}

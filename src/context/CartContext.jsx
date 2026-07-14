@@ -19,13 +19,25 @@ export function CartProvider({ children }) {
     localStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 
+  // available stock for the chosen variant (falls back to product stock)
+  const stockFor = (product, size, color) => {
+    if (product.variants?.length) {
+      return product.variants.find((v) => v.size === size && v.color === color)?.stock ?? 0;
+    }
+    return product.stock ?? Infinity;
+  };
+
   const add = (product, qty = 1, variant = "", size = "", color = "") => {
     const key = lineKey(product.id, variant);
+    const stock = stockFor(product, size, color);
     setItems((prev) => {
       const found = prev.find((i) => i.key === key);
       if (found) {
+        // never let the combined quantity exceed available stock
         return prev.map((i) =>
-          i.key === key ? { ...i, quantity: i.quantity + qty } : i
+          i.key === key
+            ? { ...i, stock, quantity: Math.min(i.quantity + qty, stock) }
+            : i
         );
       }
       return [
@@ -39,7 +51,8 @@ export function CartProvider({ children }) {
           variant,
           size,
           color,
-          quantity: qty,
+          stock,
+          quantity: Math.min(qty, stock),
         },
       ];
     });
@@ -48,7 +61,11 @@ export function CartProvider({ children }) {
   const setQty = (key, qty) =>
     setItems((prev) =>
       prev
-        .map((i) => (i.key === key ? { ...i, quantity: Math.max(1, qty) } : i))
+        .map((i) =>
+          i.key === key
+            ? { ...i, quantity: Math.min(Math.max(1, qty), i.stock ?? Infinity) }
+            : i
+        )
         .filter((i) => i.quantity > 0)
     );
 
