@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { api, rupee } from "../api.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
+import { useWishlist } from "../context/WishlistContext.jsx";
 import { useCategories } from "../context/CategoriesContext.jsx";
 import Stars from "../components/Stars.jsx";
 import ProductCard from "../components/ProductCard.jsx";
@@ -21,6 +22,17 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { add, items, setQty: setCartQty, remove } = useCart();
   const { notify } = useToast();
+  const wishlist = useWishlist();
+
+  const onWishlist = () => {
+    if (!wishlist.isAuthed) {
+      navigate(`/login?redirect=/product/${slug}`);
+      return;
+    }
+    const wasSaved = wishlist.has(p.id);
+    wishlist.toggle(p.id);
+    notify(wasSaved ? "Removed from wishlist" : "Saved to wishlist", wasSaved ? "♡" : "♥");
+  };
   const { labelOf } = useCategories();
   const [p, setP] = useState(null);
   const [active, setActive] = useState(0);
@@ -327,6 +339,15 @@ export default function ProductDetail() {
             })()}
             <button onClick={buyNow} disabled={p.stock <= 0} className="btn-primary">
               Buy Now
+            </button>
+            <button
+              onClick={onWishlist}
+              title={wishlist.has(p.id) ? "Remove from wishlist" : "Save to wishlist"}
+              className="grid h-12 w-12 place-items-center rounded-full border border-maroon/30 text-xl transition hover:bg-maroon/5"
+            >
+              <span className={wishlist.has(p.id) ? "text-maroon" : "text-ink/40"}>
+                {wishlist.has(p.id) ? "♥" : "♡"}
+              </span>
             </button>
           </div>
 

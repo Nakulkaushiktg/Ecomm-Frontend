@@ -10,8 +10,8 @@ export default function Login() {
   const [params] = useSearchParams();
   const redirect = params.get("redirect") || "/account";
 
-  const [mode, setMode] = useState("login"); // login | signup | forgot
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
+  const [mode, setMode] = useState("login"); // login | signup | forgot | reset
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", otp: "", newPassword: "" });
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [busy, setBusy] = useState(false);
@@ -26,9 +26,19 @@ export default function Login() {
     try {
       if (mode === "forgot") {
         await api.post("/api/auth/forgot", { email: form.email });
-        setInfo(
-          "Request sent. The store will reset your password and share the new one with you (on your phone/email). Then log in and you can change it from your account."
-        );
+        setInfo(`We've emailed a 6-digit code to ${form.email}. Enter it below with your new password.`);
+        setMode("reset");
+        return;
+      }
+      if (mode === "reset") {
+        await api.post("/api/auth/reset", {
+          email: form.email,
+          otp: form.otp,
+          new_password: form.newPassword,
+        });
+        setInfo("Password reset successfully! Please log in with your new password.");
+        setForm({ ...form, password: "", otp: "", newPassword: "" });
+        setMode("login");
         return;
       }
       if (mode === "login") {
@@ -54,17 +64,19 @@ export default function Login() {
       <Reveal>
       <div className="card p-8">
         <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-maroon to-maroon-dark text-2xl text-cream shadow-soft">
-          {mode === "signup" ? "✦" : "🧶"}
+          {mode === "signup" ? "✦" : mode === "forgot" || mode === "reset" ? "🔑" : "🧶"}
         </div>
         <h1 className="text-center font-serif text-3xl text-maroon">
-          {mode === "login" ? "Welcome Back" : mode === "signup" ? "Create Account" : "Forgot Password"}
+          {mode === "login" ? "Welcome Back" : mode === "signup" ? "Create Account" : mode === "reset" ? "Reset Password" : "Forgot Password"}
         </h1>
         <p className="mt-1 text-center text-sm text-ink/50">
           {mode === "login"
             ? "Log in to checkout and track your orders"
             : mode === "signup"
             ? "Sign up to shop, save addresses, and review products"
-            : "Enter your email — the store will help you reset it"}
+            : mode === "reset"
+            ? "Enter the code from your email and a new password"
+            : "Enter your email — we'll send you a reset code"}
         </p>
 
         <form onSubmit={submit} className="mt-6 grid gap-4">
@@ -81,6 +93,7 @@ export default function Login() {
               className="input"
               value={form.email}
               onChange={set("email")}
+              readOnly={mode === "reset"}
               required
             />
           </div>
@@ -90,7 +103,40 @@ export default function Login() {
               <input className="input" value={form.phone} onChange={set("phone")} />
             </div>
           )}
-          {mode !== "forgot" && (
+          {mode === "reset" && (
+            <>
+              <div>
+                <label className="label">6-digit Code *</label>
+                <input
+                  className="input tracking-[0.4em]"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="______"
+                  value={form.otp}
+                  onChange={set("otp")}
+                  required
+                />
+              </div>
+              <div>
+                <label className="label">New Password *</label>
+                <input
+                  type="password"
+                  className="input"
+                  value={form.newPassword}
+                  onChange={set("newPassword")}
+                  required
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => { setMode("forgot"); setError(""); setInfo(""); }}
+                className="text-left text-sm font-medium text-maroon hover:underline"
+              >
+                Didn't get a code? Resend
+              </button>
+            </>
+          )}
+          {(mode === "login" || mode === "signup") && (
             <div>
               <label className="label">Password *</label>
               <input
@@ -118,12 +164,20 @@ export default function Login() {
           {info && <p className="rounded-lg bg-green-50 p-3 text-sm text-green-700">{info}</p>}
 
           <button type="submit" disabled={busy} className="btn-primary w-full">
-            {busy ? "Please wait…" : mode === "login" ? "Log In" : mode === "signup" ? "Sign Up" : "Send Reset Request"}
+            {busy
+              ? "Please wait…"
+              : mode === "login"
+              ? "Log In"
+              : mode === "signup"
+              ? "Sign Up"
+              : mode === "reset"
+              ? "Reset Password"
+              : "Send Code"}
           </button>
         </form>
 
         <p className="mt-5 text-center text-sm text-ink/60">
-          {mode === "forgot" ? (
+          {mode === "forgot" || mode === "reset" ? (
             <button
               onClick={() => { setMode("login"); setError(""); setInfo(""); }}
               className="font-semibold text-maroon hover:underline"
