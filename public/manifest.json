@@ -1,0 +1,16 @@
+{
+  "name": "Kirti Thread Art",
+  "short_name": "Kirti Thread Art",
+  "description": "Handmade woolens, cotton wear, divine idols & sacred jewellery by Indian artisans.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF6EC",
+  "theme_color": "#7B2D26",
+  "icons": [
+    { "src": "/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
