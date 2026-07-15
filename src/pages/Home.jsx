@@ -96,7 +96,7 @@ export default function Home() {
           <span className="gold-divider mb-3 text-xs uppercase tracking-[0.3em]">Curated</span>
           <h2 className="font-serif text-4xl text-maroon">Shop by Category</h2>
         </Reveal>
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {categories.map((c, i) => (
             <Reveal key={c.key} delay={i * 80}>
             <Link
@@ -140,7 +140,7 @@ export default function Home() {
         {featured.length === 0 ? (
           <p className="text-ink/50">No products yet. Add some from the admin panel.</p>
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
             {featured.map((p, i) => {
               const { price, mrp } = getDisplayPrice(p);
               return (

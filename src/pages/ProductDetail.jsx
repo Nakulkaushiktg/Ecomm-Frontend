@@ -4,6 +4,7 @@ import { api, rupee } from "../api.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import { useWishlist } from "../context/WishlistContext.jsx";
+import useDocTitle from "../hooks/useDocTitle.js";
 import { useCategories } from "../context/CategoriesContext.jsx";
 import Stars from "../components/Stars.jsx";
 import ProductCard from "../components/ProductCard.jsx";
@@ -33,6 +34,20 @@ export default function ProductDetail() {
     wishlist.toggle(p.id);
     notify(wasSaved ? "Removed from wishlist" : "Saved to wishlist", wasSaved ? "♡" : "♥");
   };
+
+  const shareProduct = async () => {
+    const url = window.location.href;
+    const text = `Check out "${p.name}" on Kirti Thread Art`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: p.name, text, url });
+      } catch {
+        /* user cancelled */
+      }
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`, "_blank");
+    }
+  };
   const { labelOf } = useCategories();
   const [p, setP] = useState(null);
   const [active, setActive] = useState(0);
@@ -44,6 +59,8 @@ export default function ProductDetail() {
   const [color, setColor] = useState("");
   const [variantErr, setVariantErr] = useState("");
   const [lightbox, setLightbox] = useState(null); // full-screen image url
+
+  useDocTitle(p?.name);
 
   const loadReviews = () =>
     api.get(`/api/products/${slug}/reviews`).then((r) => setReviews(r.data)).catch(() => {});
@@ -349,6 +366,19 @@ export default function ProductDetail() {
                 {wishlist.has(p.id) ? "♥" : "♡"}
               </span>
             </button>
+            <button
+              onClick={shareProduct}
+              title="Share this product"
+              className="grid h-12 w-12 place-items-center rounded-full border border-maroon/30 text-ink/50 transition hover:bg-maroon/5 hover:text-maroon"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="2">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.6" y1="10.7" x2="15.4" y2="6.3" />
+                <line x1="8.6" y1="13.3" x2="15.4" y2="17.7" />
+              </svg>
+            </button>
           </div>
 
           {/* trust row */}
@@ -449,7 +479,7 @@ export default function ProductDetail() {
       {related.length > 0 && (
         <div className="mt-14 border-t border-sand pt-10">
           <h2 className="font-serif text-2xl text-maroon">You May Also Like</h2>
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
             {related.map((rp) => (
               <ProductCard key={rp.id} product={rp} />
             ))}

@@ -42,7 +42,7 @@ export default function Wishlist() {
           <Link to="/shop" className="btn-primary mt-6">Browse Products</Link>
         </div>
       ) : (
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {saved.map((p, i) => (
             <Reveal key={p.id} delay={(i % 4) * 70}>
               <ProductCard product={p} />

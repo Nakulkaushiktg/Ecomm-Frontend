@@ -52,7 +52,7 @@ export default function RecentlyViewed({ excludeId }) {
   return (
     <div className="mt-14 border-t border-sand pt-10">
       <h2 className="font-serif text-2xl text-maroon">Recently Viewed</h2>
-      <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
         {items.slice(0, 4).map((p, i) => (
           <Reveal key={p.id} delay={i * 70}>
             <ProductCard product={p} />

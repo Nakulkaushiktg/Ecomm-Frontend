@@ -5,6 +5,7 @@ import Footer from "./components/Footer.jsx";
 import Banner from "./components/Banner.jsx";
 import CartDrawer from "./components/CartDrawer.jsx";
 import BackToTop from "./components/BackToTop.jsx";
+import WhatsAppButton from "./components/WhatsAppButton.jsx";
 import Home from "./pages/Home.jsx";
 import Shop from "./pages/Shop.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
@@ -29,6 +30,7 @@ function StoreLayout({ children }) {
       <Footer />
       <CartDrawer />
       <BackToTop />
+      <WhatsAppButton />
     </div>
   );
 }

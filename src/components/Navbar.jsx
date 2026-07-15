@@ -12,9 +12,11 @@ export default function Navbar() {
   const { isAuthed, user } = useAuth();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const search = (e) => {
     e.preventDefault();
+    setMenuOpen(false);
     navigate(`/shop?search=${encodeURIComponent(q.trim())}`);
   };
 
@@ -49,6 +51,13 @@ export default function Navbar() {
         </form>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label="Menu"
+            className="text-2xl text-maroon md:hidden"
+          >
+            {menuOpen ? "✕" : "☰"}
+          </button>
           <Link to="/track" className="hidden text-sm font-medium text-ink/70 hover:text-maroon sm:block">
             Track Order
           </Link>
@@ -97,6 +106,32 @@ export default function Navbar() {
           </button>
         </div>
       </div>
+
+      {/* mobile menu panel */}
+      {menuOpen && (
+        <div className="border-t border-sand/60 px-4 py-3 md:hidden">
+          <form onSubmit={search} className="flex">
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search handmade products…"
+              className="w-full rounded-l-full border border-sand bg-white px-4 py-2 text-sm outline-none focus:border-gold"
+            />
+            <button className="rounded-r-full bg-maroon px-4 text-cream">🔍</button>
+          </form>
+          <div className="mt-3 flex flex-col gap-2 text-sm font-medium">
+            <Link to="/track" onClick={() => setMenuOpen(false)} className="text-ink/70 hover:text-maroon">
+              Track Order
+            </Link>
+            <Link to="/contact" onClick={() => setMenuOpen(false)} className="text-ink/70 hover:text-maroon">
+              Contact Us
+            </Link>
+            <Link to="/wishlist" onClick={() => setMenuOpen(false)} className="text-ink/70 hover:text-maroon">
+              My Wishlist
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* category row */}
       <div className="border-t border-sand/50">

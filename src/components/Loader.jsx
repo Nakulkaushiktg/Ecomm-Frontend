@@ -24,7 +24,7 @@ export default function Loader({ label = "Loading", className = "" }) {
 
 export function ProductGridSkeleton({ count = 8 }) {
   return (
-    <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="card overflow-hidden">
           <div className="skeleton aspect-square w-full" />

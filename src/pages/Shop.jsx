@@ -5,6 +5,7 @@ import { useCategories } from "../context/CategoriesContext.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 import { ProductGridSkeleton } from "../components/Loader.jsx";
 import Reveal from "../components/Reveal.jsx";
+import useDocTitle from "../hooks/useDocTitle.js";
 
 export default function Shop() {
   const { category } = useParams();
@@ -18,6 +19,8 @@ export default function Shop() {
   // price used for sorting = first variant's price if any, else base price
   const priceOf = (p) =>
     p.variants?.length && p.variants[0].price > 0 ? p.variants[0].price : p.price;
+
+  useDocTitle(search ? `Search: ${search}` : category ? labelOf(category) : "Shop");
 
   const sorted = [...products].sort((a, b) => {
     if (sort === "price-asc") return priceOf(a) - priceOf(b);
@@ -84,7 +87,7 @@ export default function Shop() {
           <Link to="/shop" className="btn-ghost mt-6">Browse all products</Link>
         </div>
       ) : (
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {sorted.map((p, i) => (
             <Reveal key={p.id} delay={(i % 4) * 70}>
               <ProductCard product={p} />

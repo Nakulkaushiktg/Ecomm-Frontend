@@ -1,10 +1,22 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
-import { rupee } from "../api.js";
+import { api, rupee } from "../api.js";
 
 export default function Cart() {
   const { items, setQty, remove, total } = useCart();
   const navigate = useNavigate();
+  const [freeAbove, setFreeAbove] = useState(0);
+
+  useEffect(() => {
+    api
+      .get("/api/orders/config")
+      .then((r) => setFreeAbove(r.data.free_shipping_above || 0))
+      .catch(() => {});
+  }, []);
+
+  const remaining = freeAbove > 0 ? Math.max(0, freeAbove - total) : 0;
+  const progress = freeAbove > 0 ? Math.min(100, (total / freeAbove) * 100) : 0;
 
   if (items.length === 0)
     return (
@@ -55,6 +67,25 @@ export default function Cart() {
 
         <div className="card h-fit p-6 lg:sticky lg:top-28">
           <h3 className="font-serif text-xl text-maroon">Order Summary</h3>
+
+          {/* free-shipping progress */}
+          {freeAbove > 0 && (
+            <div className="mt-4 rounded-xl bg-sand/50 p-3">
+              <p className="text-xs text-ink/70">
+                {remaining > 0 ? (
+                  <>Add <b className="text-maroon">{rupee(remaining)}</b> more for <b>FREE</b> delivery 🚚</>
+                ) : (
+                  <span className="font-medium text-green-700">🎉 You've unlocked FREE delivery!</span>
+                )}
+              </p>
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-sand">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-gold to-maroon transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          )}
           <div className="mt-4 flex justify-between text-sm">
             <span className="text-ink/60">Subtotal</span>
             <span>{rupee(total)}</span>

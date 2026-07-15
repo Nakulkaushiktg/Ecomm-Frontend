@@ -1,12 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
-import { rupee } from "../api.js";
+import { api, rupee } from "../api.js";
 
 // Slide-in mini cart from the right. Opened via the navbar cart button.
 export default function CartDrawer() {
   const { items, setQty, remove, total, drawerOpen, closeCart } = useCart();
   const navigate = useNavigate();
+  const [freeAbove, setFreeAbove] = useState(0);
+
+  useEffect(() => {
+    api
+      .get("/api/orders/config")
+      .then((r) => setFreeAbove(r.data.free_shipping_above || 0))
+      .catch(() => {});
+  }, []);
+
+  const remaining = freeAbove > 0 ? Math.max(0, freeAbove - total) : 0;
+  const progress = freeAbove > 0 ? Math.min(100, (total / freeAbove) * 100) : 0;
 
   // lock body scroll while open
   useEffect(() => {
@@ -98,6 +109,24 @@ export default function CartDrawer() {
             </div>
 
             <div className="border-t border-sand px-5 py-4">
+              {/* free-shipping progress */}
+              {freeAbove > 0 && (
+                <div className="mb-3 rounded-xl bg-sand/50 p-3">
+                  <p className="text-xs text-ink/70">
+                    {remaining > 0 ? (
+                      <>Add <b className="text-maroon">{rupee(remaining)}</b> more for <b>FREE</b> delivery 🚚</>
+                    ) : (
+                      <span className="font-medium text-green-700">🎉 You've unlocked FREE delivery!</span>
+                    )}
+                  </p>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-sand">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-gold to-maroon transition-all duration-500"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-ink/60">Subtotal</span>
                 <span className="font-semibold text-maroon">{rupee(total)}</span>
