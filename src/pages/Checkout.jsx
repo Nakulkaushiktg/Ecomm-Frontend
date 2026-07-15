@@ -63,8 +63,18 @@ export default function Checkout() {
         coupon_code: appliedCoupon,
         items: items.map((i) => ({ product_id: i.id, quantity: i.quantity })),
       })
-      .then((r) => setQuote(r.data))
-      .catch(() => setQuote(null));
+      .then((r) => {
+        setQuote(r.data);
+        setError("");
+      })
+      .catch((err) => {
+        setQuote(null);
+        setError(
+          err.response?.data?.detail
+            ? "Some items in your cart are no longer available. Please remove them and try again."
+            : "Couldn't calculate totals. Please check your connection and try again."
+        );
+      });
   }, [items, method, appliedCoupon]);
 
   if (items.length === 0) {
@@ -162,8 +172,29 @@ export default function Checkout() {
   const submit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!form.customer_name || !form.phone || !form.address) {
-      setError("Please fill name, phone and address.");
+    // all delivery fields are required
+    if (
+      !form.customer_name?.trim() ||
+      !form.phone?.trim() ||
+      !form.email?.trim() ||
+      !form.address?.trim() ||
+      !form.city?.trim() ||
+      !form.state?.trim() ||
+      !form.pincode?.trim()
+    ) {
+      setError("Please fill all details — name, phone, email, address, city, state and pincode.");
+      return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (form.phone.replace(/\D/g, "").length < 10) {
+      setError("Please enter a valid 10-digit phone number.");
+      return;
+    }
+    if (!/^\d{6}$/.test(form.pincode.trim())) {
+      setError("Please enter a valid 6-digit pincode.");
       return;
     }
     setSubmitting(true);
@@ -199,8 +230,8 @@ export default function Checkout() {
                 <input className="input" value={form.phone} onChange={set("phone")} />
               </div>
               <div>
-                <label className="label">Email</label>
-                <input className="input" value={form.email} onChange={set("email")} />
+                <label className="label">Email *</label>
+                <input type="email" className="input" value={form.email} onChange={set("email")} />
               </div>
             </div>
             <div>
@@ -209,16 +240,16 @@ export default function Checkout() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="label">City</label>
+                <label className="label">City *</label>
                 <input className="input" value={form.city} onChange={set("city")} />
               </div>
               <div>
-                <label className="label">State</label>
+                <label className="label">State *</label>
                 <input className="input" value={form.state} onChange={set("state")} />
               </div>
               <div>
-                <label className="label">Pincode</label>
-                <input className="input" value={form.pincode} onChange={set("pincode")} />
+                <label className="label">Pincode *</label>
+                <input className="input" inputMode="numeric" value={form.pincode} onChange={set("pincode")} />
               </div>
             </div>
             <div>
@@ -407,7 +438,7 @@ export default function Checkout() {
 
           {error && <p className="text-sm text-red-700">{error}</p>}
 
-          <button type="submit" disabled={submitting} className="btn-primary w-full">
+          <button type="submit" disabled={submitting || !quote} className="btn-primary w-full">
             {submitting
               ? "Processing…"
               : method === "razorpay"
