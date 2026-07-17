@@ -26,7 +26,7 @@ export default function TrackOrder() {
     setLoading(true);
     try {
       const { data } = await api.post("/api/orders/track", {
-        order_id: Number(orderId),
+        order_id: orderId.trim(),
         phone,
       });
       setOrder(data);
@@ -68,7 +68,7 @@ export default function TrackOrder() {
           <label className="label">Order ID</label>
           <input
             className="input"
-            placeholder="e.g. 12"
+            placeholder="e.g. KTA-7F3K9Q2M"
             value={orderId}
             onChange={(e) => setOrderId(e.target.value)}
           />
@@ -92,7 +92,7 @@ export default function TrackOrder() {
       {order && (
         <div className="card mt-6 p-6">
           <div className="flex items-center justify-between">
-            <h2 className="font-serif text-xl text-maroon">Order #{order.id}</h2>
+            <h2 className="font-serif text-xl text-maroon">Order #{order.order_number || order.id}</h2>
             <span className="text-sm text-ink/50">
               {new Date(order.created_at).toLocaleDateString()}
             </span>

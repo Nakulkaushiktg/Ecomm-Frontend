@@ -1,19 +1,15 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api.js";
 import { useWishlist } from "../context/WishlistContext.jsx";
 import ProductCard from "../components/ProductCard.jsx";
+import { ProductGridSkeleton } from "../components/Loader.jsx";
 import Reveal from "../components/Reveal.jsx";
+import useCachedGet from "../hooks/useCachedGet.js";
 
 export default function Wishlist() {
   const { ids, isAuthed } = useWishlist();
-  const [products, setProducts] = useState([]);
+  const { data: products, loading } = useCachedGet("/api/products", { enabled: isAuthed });
 
-  useEffect(() => {
-    api.get("/api/products").then((r) => setProducts(r.data)).catch(() => {});
-  }, []);
-
-  const saved = products.filter((p) => ids.includes(p.id));
+  const saved = (products || []).filter((p) => ids.includes(p.id));
 
   if (!isAuthed) {
     return (
@@ -35,7 +31,9 @@ export default function Wishlist() {
       <span className="text-xs uppercase tracking-[0.3em] text-gold">Saved for later</span>
       <h1 className="mt-1 font-serif text-4xl text-maroon">My Wishlist</h1>
       <div className="mt-4 h-px w-24 bg-gradient-to-r from-gold to-transparent" />
-      {ids.length === 0 ? (
+      {loading && saved.length === 0 && ids.length > 0 ? (
+        <ProductGridSkeleton count={4} />
+      ) : ids.length === 0 ? (
         <div className="mt-16 text-center">
           <div className="text-5xl">🤍</div>
           <p className="mt-3 text-ink/60">Your wishlist is empty. Tap the ♡ on any product to save it.</p>

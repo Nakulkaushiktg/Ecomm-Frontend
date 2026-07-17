@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api, rupee } from "../api.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import CouponCelebration from "../components/CouponCelebration.jsx";
 
 export default function Checkout() {
   const { items, clear } = useCart();
@@ -15,6 +16,8 @@ export default function Checkout() {
   const [coupon, setCoupon] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState("");
   const [quote, setQuote] = useState(null);
+  const [celebrate, setCelebrate] = useState(0);
+  const celebratedRef = useRef("");
   const [form, setForm] = useState({
     customer_name: "", phone: "", email: "",
     address: "", city: "", state: "", pincode: "", note: "",
@@ -77,6 +80,19 @@ export default function Checkout() {
       });
   }, [items, method, appliedCoupon]);
 
+  // celebrate when a valid coupon gets applied — resets when the coupon is removed,
+  // so re-applying celebrates again
+  useEffect(() => {
+    if (!appliedCoupon) {
+      celebratedRef.current = "";
+      return;
+    }
+    if (quote?.coupon_code && quote.discount > 0 && quote.coupon_code !== celebratedRef.current) {
+      celebratedRef.current = quote.coupon_code;
+      setCelebrate(quote.discount);
+    }
+  }, [quote, appliedCoupon]);
+
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
@@ -122,7 +138,7 @@ export default function Checkout() {
     };
     const { data } = await api.post("/api/orders", payload);
     clear();
-    navigate(`/order/${data.order.id}`);
+    navigate(`/order/${data.order.order_number || data.order.id}`);
   };
 
   const payWithRazorpay = async () => {
@@ -213,6 +229,7 @@ export default function Checkout() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
+      {celebrate > 0 && <CouponCelebration amount={celebrate} onClose={() => setCelebrate(0)} />}
       <span className="text-xs uppercase tracking-[0.3em] text-gold">Almost there</span>
       <h1 className="mt-1 font-serif text-4xl text-maroon">Checkout</h1>
       <form onSubmit={submit} className="mt-8 grid gap-8 lg:grid-cols-2">

@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import flyToCart from "../lib/flyToCart.js";
+import { optimizeImg } from "../lib/img.js";
 import { api, rupee } from "../api.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
@@ -59,6 +61,17 @@ export default function ProductDetail() {
   const [color, setColor] = useState("");
   const [variantErr, setVariantErr] = useState("");
   const [lightbox, setLightbox] = useState(null); // full-screen image url
+  const [zoom, setZoom] = useState({ on: false, x: 50, y: 50 }); // hover magnifier
+  const galleryRef = useRef(null);
+
+  const onZoomMove = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    setZoom({
+      on: true,
+      x: ((e.clientX - r.left) / r.width) * 100,
+      y: ((e.clientY - r.top) / r.height) * 100,
+    });
+  };
 
   useDocTitle(p?.name);
 
@@ -130,6 +143,7 @@ export default function ProductDetail() {
     const existing = items.find((i) => i.key === cartKey)?.quantity || 0;
     const cap = availStock ?? Infinity;
     const after = Math.min(existing + qty, cap);
+    flyToCart(galleryRef.current);
     add({ ...p, price: curPrice }, qty, variantString(), size, color);
     if (after > existing) {
       notify(`Added to cart · ${after} in cart`);
@@ -168,11 +182,11 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
+    <div className="mx-auto max-w-6xl px-4 py-10 pb-24 md:pb-10">
       <div className="grid gap-10 md:grid-cols-2">
         {/* gallery */}
         <div className="md:sticky md:top-28 md:self-start">
-          <div className="group aspect-square overflow-hidden rounded-2xl bg-sand">
+          <div className="aspect-square overflow-hidden rounded-2xl bg-sand">
             {media[active]?.type === "video" ? (
               <video
                 src={media[active].url}
@@ -184,11 +198,18 @@ export default function ProductDetail() {
               />
             ) : (
               <img
-                src={media[active]?.url}
+                ref={galleryRef}
+                src={optimizeImg(media[active]?.url, 800)}
                 alt={p.name}
                 onError={(e) => (e.currentTarget.src = PLACEHOLDER)}
                 onClick={() => setLightbox(media[active]?.url)}
-                className="h-full w-full cursor-zoom-in object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                onMouseMove={onZoomMove}
+                onMouseLeave={() => setZoom((z) => ({ ...z, on: false }))}
+                style={{
+                  transformOrigin: `${zoom.x}% ${zoom.y}%`,
+                  transform: zoom.on ? "scale(2.3)" : "scale(1)",
+                }}
+                className="h-full w-full cursor-zoom-in object-cover transition-transform duration-200 ease-out"
               />
             )}
           </div>
@@ -488,6 +509,45 @@ export default function ProductDetail() {
       )}
 
       <RecentlyViewed excludeId={p.id} />
+
+      {/* sticky add-to-cart bar (mobile) */}
+      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-sand bg-cream/95 px-4 py-3 shadow-[0_-6px_20px_-12px_rgba(91,33,28,0.4)] backdrop-blur md:hidden">
+        <div className="shrink-0">
+          <div className="text-lg font-semibold text-maroon">{rupee(curPrice)}</div>
+          {p.stock <= 0 && <div className="text-xs text-red-600">Out of stock</div>}
+        </div>
+        {(() => {
+          const cartKey = `${p.id}__${variantString() || ""}`;
+          const cartQty = items.find((i) => i.key === cartKey)?.quantity || 0;
+          const maxStock = availStock ?? Infinity;
+          if (p.stock <= 0)
+            return (
+              <button disabled className="btn-primary flex-1 opacity-60">Out of Stock</button>
+            );
+          if (cartQty === 0)
+            return (
+              <button onClick={addToCart} className="btn-primary flex-1">Add to Cart</button>
+            );
+          return (
+            <div className="flex flex-1 items-center justify-between rounded-full bg-maroon px-2 py-1.5 text-cream">
+              <button
+                onClick={() => (cartQty === 1 ? remove(cartKey) : setCartQty(cartKey, cartQty - 1))}
+                className="grid h-9 w-9 place-items-center rounded-full text-xl hover:bg-maroon-dark"
+              >
+                –
+              </button>
+              <span className="text-sm font-medium">{cartQty} in cart</span>
+              <button
+                onClick={() => cartQty < maxStock && setCartQty(cartKey, cartQty + 1)}
+                disabled={cartQty >= maxStock}
+                className="grid h-9 w-9 place-items-center rounded-full text-xl hover:bg-maroon-dark disabled:opacity-40"
+              >
+                +
+              </button>
+            </div>
+          );
+        })()}
+      </div>
 
       <Lightbox src={lightbox} onClose={() => setLightbox(null)} />
     </div>

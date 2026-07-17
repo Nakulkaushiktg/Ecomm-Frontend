@@ -172,7 +172,7 @@ export default function Orders() {
             <div key={o.id} className="card p-5">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-sand pb-3">
                 <div>
-                  <span className="font-semibold text-maroon">Order #{o.id}</span>
+                  <span className="font-semibold text-maroon">Order #{o.order_number || o.id}</span>
                   <span className="ml-3 text-sm text-ink/50">
                     {new Date(o.created_at).toLocaleDateString("en-IN", {
                       day: "numeric", month: "short", year: "numeric",

@@ -1,9 +1,11 @@
 import { useParams, Link } from "react-router-dom";
+import Confetti from "../components/Confetti.jsx";
 
 export default function OrderSuccess() {
   const { id } = useParams();
   return (
     <div className="relative mx-auto max-w-2xl overflow-hidden px-4 py-24 text-center">
+      <Confetti />
       {/* soft celebratory glow */}
       <div className="pointer-events-none absolute left-1/2 top-16 h-48 w-48 -translate-x-1/2 rounded-full bg-gold/25 blur-3xl" />
       <div className="relative mx-auto grid h-24 w-24 animate-pop place-items-center rounded-full bg-gradient-to-br from-green-400 to-green-600 text-5xl text-white shadow-soft ring-4 ring-green-100">

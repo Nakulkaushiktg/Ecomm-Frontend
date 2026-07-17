@@ -1,27 +1,20 @@
 import { useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import { useCategories } from "../context/CategoriesContext.jsx";
 import { useWishlist } from "../context/WishlistContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import SearchBox from "./SearchBox.jsx";
 
 export default function Navbar() {
   const { count, openCart } = useCart();
   const { categories } = useCategories();
   const wishlist = useWishlist();
   const { isAuthed, user } = useAuth();
-  const navigate = useNavigate();
-  const [q, setQ] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const search = (e) => {
-    e.preventDefault();
-    setMenuOpen(false);
-    navigate(`/shop?search=${encodeURIComponent(q.trim())}`);
-  };
-
   return (
-    <header className="sticky top-0 z-40 border-b border-sand/70 bg-cream/80 shadow-[0_4px_24px_-16px_rgba(91,33,28,0.4)] backdrop-blur-md">
+    <header className="border-b border-sand/70 bg-cream/80 shadow-[0_4px_24px_-16px_rgba(91,33,28,0.4)] backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
         <Link to="/" className="group flex items-center gap-2">
           <img
@@ -40,15 +33,9 @@ export default function Navbar() {
         </Link>
 
         {/* search */}
-        <form onSubmit={search} className="hidden flex-1 max-w-sm md:flex">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search handmade products…"
-            className="w-full rounded-l-full border border-sand bg-white px-4 py-2 text-sm outline-none focus:border-gold"
-          />
-          <button className="rounded-r-full bg-maroon px-4 text-cream">🔍</button>
-        </form>
+        <div className="hidden flex-1 max-w-sm md:block">
+          <SearchBox />
+        </div>
 
         <div className="flex items-center gap-3">
           <button
@@ -94,6 +81,7 @@ export default function Navbar() {
             </Link>
           )}
           <button
+            id="cart-fly-target"
             onClick={openCart}
             className="relative rounded-full border border-maroon/20 px-4 py-2 text-sm font-medium text-maroon transition hover:bg-maroon hover:text-cream"
           >
@@ -110,15 +98,7 @@ export default function Navbar() {
       {/* mobile menu panel */}
       {menuOpen && (
         <div className="border-t border-sand/60 px-4 py-3 md:hidden">
-          <form onSubmit={search} className="flex">
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search handmade products…"
-              className="w-full rounded-l-full border border-sand bg-white px-4 py-2 text-sm outline-none focus:border-gold"
-            />
-            <button className="rounded-r-full bg-maroon px-4 text-cream">🔍</button>
-          </form>
+          <SearchBox onNavigate={() => setMenuOpen(false)} />
           <div className="mt-3 flex flex-col gap-2 text-sm font-medium">
             <Link to="/track" onClick={() => setMenuOpen(false)} className="text-ink/70 hover:text-maroon">
               Track Order

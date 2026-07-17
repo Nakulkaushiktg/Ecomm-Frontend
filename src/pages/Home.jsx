@@ -1,22 +1,20 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api.js";
 import { useCategories } from "../context/CategoriesContext.jsx";
 import ProductCard from "../components/ProductCard.jsx";
+import { ProductGridSkeleton } from "../components/Loader.jsx";
 import Reveal from "../components/Reveal.jsx";
+import Testimonials from "../components/Testimonials.jsx";
+import InstagramStrip from "../components/InstagramStrip.jsx";
+import Newsletter from "../components/Newsletter.jsx";
+import useCachedGet from "../hooks/useCachedGet.js";
 
 export default function Home() {
   const { categories } = useCategories();
-  const [featured, setFeatured] = useState([]);
-  const [ownerWa, setOwnerWa] = useState("");
-
-  useEffect(() => {
-    api
-      .get("/api/products", { params: { featured: true } })
-      .then((r) => setFeatured(r.data))
-      .catch(() => {});
-    api.get("/api/orders/config").then((r) => setOwnerWa(r.data.owner_whatsapp)).catch(() => {});
-  }, []);
+  // cached — instant on return visits
+  const { data: featuredData, loading: featuredLoading } = useCachedGet("/api/products?featured=true");
+  const featured = featuredData || [];
+  const { data: cfg } = useCachedGet("/api/orders/config");
+  const ownerWa = cfg?.owner_whatsapp || "";
 
   const customWa = `https://wa.me/${ownerWa}?text=${encodeURIComponent(
     "Hi Kirti Thread Art! 🙏 I'd like to order a custom handmade piece. Here are my details:"
@@ -137,7 +135,9 @@ export default function Home() {
             <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
           </Link>
         </div>
-        {featured.length === 0 ? (
+        {featuredLoading && featured.length === 0 ? (
+          <ProductGridSkeleton count={4} />
+        ) : featured.length === 0 ? (
           <p className="text-ink/50">No products yet. Add some from the admin panel.</p>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
@@ -153,8 +153,11 @@ export default function Home() {
         )}
       </section>
 
+      {/* Testimonials */}
+      <Testimonials />
+
       {/* Custom orders CTA */}
-      <section className="mx-auto max-w-7xl px-4 pb-16">
+      <section className="mx-auto max-w-7xl px-4 pb-16 pt-16">
         <div className="relative overflow-hidden rounded-3xl bg-maroon px-8 py-12 text-cream md:px-14 md:py-16">
           <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_85%_20%,#E8C77E_0,transparent_40%),radial-gradient(circle_at_10%_90%,#C39A4B_0,transparent_40%)]" />
           <div className="relative grid items-center gap-6 md:grid-cols-3">
@@ -206,6 +209,12 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* Instagram gallery */}
+      <InstagramStrip />
+
+      {/* Newsletter */}
+      <Newsletter />
     </div>
   );
 }

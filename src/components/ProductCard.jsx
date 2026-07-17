@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import flyToCart from "../lib/flyToCart.js";
+import { optimizeImg } from "../lib/img.js";
 import { rupee } from "../api.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useWishlist } from "../context/WishlistContext.jsx";
@@ -20,6 +22,7 @@ export default function ProductCard({ product }) {
   const images = product.images?.length ? product.images : [PLACEHOLDER];
   const [idx, setIdx] = useState(0);
   const [hovered, setHovered] = useState(false);
+  const imgRef = useRef(null);
 
   // wishlist needs an account; send guests to login
   const onWishlist = () => {
@@ -66,9 +69,12 @@ export default function ProductCard({ product }) {
           onMouseLeave={() => setHovered(false)}
         >
           <img
+            ref={imgRef}
             key={idx}
-            src={img}
+            src={optimizeImg(img, 450)}
             alt={product.name}
+            loading="lazy"
+            decoding="async"
             onError={(e) => (e.currentTarget.src = PLACEHOLDER)}
             className={`h-full w-full object-cover transition duration-700 ease-out group-hover:scale-110 ${
               nextImg ? "group-hover:opacity-0" : ""
@@ -78,9 +84,11 @@ export default function ProductCard({ product }) {
           {/* next angle fades in on hover, giving an "angle change" reveal */}
           {nextImg && (
             <img
-              src={nextImg}
+              src={optimizeImg(nextImg, 450)}
               alt=""
               aria-hidden="true"
+              loading="lazy"
+              decoding="async"
               className="absolute inset-0 h-full w-full scale-105 object-cover opacity-0 transition duration-700 ease-out group-hover:scale-110 group-hover:opacity-100"
             />
           )}
@@ -188,6 +196,7 @@ export default function ProductCard({ product }) {
         ) : qty === 0 ? (
           <button
             onClick={() => {
+              flyToCart(imgRef.current);
               add(product);
               notify("Added to cart");
             }}
