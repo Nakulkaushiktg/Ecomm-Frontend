@@ -25,19 +25,19 @@ export default function Navbar() {
   }, [menuOpen]);
 
   return (
-    <header ref={headerRef} className="border-b border-sand/70 bg-cream/80 shadow-[0_4px_24px_-16px_rgba(91,33,28,0.4)] backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
-        <Link to="/" className="group flex items-center gap-2">
+    <header ref={headerRef} className="border-b border-sand/70 bg-cream/95 shadow-[0_4px_24px_-16px_rgba(91,33,28,0.4)] backdrop-blur-md supports-[backdrop-filter]:bg-cream/80">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-4 sm:py-4">
+        <Link to="/" className="group flex min-w-0 items-center gap-2">
           <img
             src="/logo.png"
             alt="Kirti Thread Art"
-            className="h-11 w-11 rounded-full object-cover ring-2 ring-gold/40 transition duration-300 group-hover:ring-gold"
+            className="h-9 w-9 shrink-0 rounded-full object-cover ring-2 ring-gold/40 transition duration-300 group-hover:ring-gold sm:h-11 sm:w-11"
           />
-          <span className="leading-tight">
-            <span className="block font-serif text-xl font-semibold text-maroon">
+          <span className="min-w-0 leading-tight">
+            <span className="block truncate font-serif text-base font-semibold text-maroon sm:text-xl">
               Kirti Thread Art
             </span>
-            <span className="block text-[10px] uppercase tracking-[0.2em] text-ink/50">
+            <span className="block truncate text-[9px] uppercase tracking-[0.2em] text-ink/50 sm:text-[10px]">
               Woolen · Sacred · Crafted
             </span>
           </span>
@@ -48,11 +48,11 @@ export default function Navbar() {
           <SearchBox />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <button
             onClick={() => setMenuOpen((o) => !o)}
             aria-label="Menu"
-            className="text-2xl text-maroon md:hidden"
+            className="text-2xl leading-none text-maroon md:hidden"
           >
             {menuOpen ? "✕" : "☰"}
           </button>
@@ -94,7 +94,7 @@ export default function Navbar() {
           <button
             id="cart-fly-target"
             onClick={openCart}
-            className="relative rounded-full border border-maroon/20 px-4 py-2 text-sm font-medium text-maroon transition hover:bg-maroon hover:text-cream"
+            className="relative shrink-0 rounded-full border border-maroon/20 px-3 py-1.5 text-sm font-medium text-maroon transition hover:bg-maroon hover:text-cream sm:px-4 sm:py-2"
           >
             Cart
             {count > 0 && (

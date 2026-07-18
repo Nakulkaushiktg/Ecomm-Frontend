@@ -17,6 +17,7 @@ export default function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState("");
   const [quote, setQuote] = useState(null);
   const [celebrate, setCelebrate] = useState(0);
+  const [couponBusy, setCouponBusy] = useState(false);
   const celebratedRef = useRef("");
   const [form, setForm] = useState({
     customer_name: "", phone: "", email: "",
@@ -84,7 +85,8 @@ export default function Checkout() {
             ? "Some items in your cart are no longer available. Please remove them and try again."
             : "Couldn't calculate totals. Please check your connection and try again."
         );
-      });
+      })
+      .finally(() => setCouponBusy(false));
   }, [items, method, appliedCoupon]);
 
   // celebrate when a valid coupon gets applied — resets when the coupon is removed,
@@ -299,29 +301,18 @@ export default function Checkout() {
             {availableCoupons.length > 0 && (
               <div className="mt-4">
                 <p className="mb-2 text-xs font-medium uppercase tracking-wide text-ink/50">
-                  Available Offers — tap to apply
+                  Available Offers — tap to select, then Apply
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {availableCoupons.map((c) => {
-                    const active = appliedCoupon === c.code;
-                    const toggle = () => {
-                      if (active) {
-                        setAppliedCoupon("");
-                        setCoupon("");
-                      } else {
-                        setCoupon(c.code);
-                        setAppliedCoupon(c.code);
-                      }
-                    };
+                    const selected = coupon === c.code;
                     return (
                       <button
                         key={c.id}
                         type="button"
-                        onClick={toggle}
-                        className={`relative rounded-lg border border-dashed px-3 py-2 pr-7 text-left text-xs transition ${
-                          active
-                            ? "border-maroon bg-maroon/5"
-                            : "border-gold/60 hover:border-maroon"
+                        onClick={() => setCoupon(c.code)}
+                        className={`rounded-lg border border-dashed px-3 py-2 text-left text-xs transition ${
+                          selected ? "border-maroon bg-maroon/5" : "border-gold/60 hover:border-maroon"
                         }`}
                       >
                         <span className="block font-mono font-bold text-maroon">{c.code}</span>
@@ -329,11 +320,6 @@ export default function Checkout() {
                           {c.discount_percent}% off
                           {c.min_order > 0 ? ` · min ${rupee(c.min_order)}` : ""}
                         </span>
-                        {active && (
-                          <span className="absolute right-1.5 top-1.5 grid h-4 w-4 place-items-center rounded-full bg-maroon text-[10px] text-cream">
-                            ✕
-                          </span>
-                        )}
                       </button>
                     );
                   })}
@@ -351,18 +337,32 @@ export default function Checkout() {
               />
               <button
                 type="button"
-                onClick={() => setAppliedCoupon(coupon.trim())}
+                onClick={() => {
+                  setCouponBusy(true);
+                  setAppliedCoupon(coupon.trim());
+                }}
+                disabled={couponBusy || !coupon.trim()}
                 className="btn-ghost whitespace-nowrap"
               >
-                Apply
+                {couponBusy ? "Applying…" : "Apply"}
               </button>
             </div>
             {quote?.coupon_error && (
               <p className="mt-1 text-xs text-red-700">{quote.coupon_error}</p>
             )}
             {quote?.coupon_code && (
-              <p className="mt-1 text-xs text-green-700">
+              <p className="mt-1 flex items-center gap-2 text-xs text-green-700">
                 Coupon {quote.coupon_code} applied 🎉
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAppliedCoupon("");
+                    setCoupon("");
+                  }}
+                  className="text-ink/40 underline hover:text-maroon"
+                >
+                  Remove
+                </button>
               </p>
             )}
 
