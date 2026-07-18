@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 export default function Account() {
   const { user, isAuthed, updateProfile, logout } = useAuth();
   const navigate = useNavigate();
+  const points = user?.points || 0;
   const [form, setForm] = useState({
     name: user?.name || "",
     phone: user?.phone || "",
@@ -77,6 +78,40 @@ export default function Account() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* loyalty points */}
+      <div className="card mt-6 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-serif text-xl text-maroon">Rewards</h2>
+            <p className="text-sm text-ink/50">1 point per order of ₹1000+ · 5 points = a free gift 🎁</p>
+          </div>
+          <div className="text-right">
+            <div className="font-serif text-3xl text-maroon">{Math.min(points, 5)}<span className="text-lg text-ink/40">/5</span></div>
+            <div className="text-xs text-ink/50">{points} total</div>
+          </div>
+        </div>
+
+        {/* progress to next gift */}
+        <div className="mt-4 flex gap-2">
+          {[0, 1, 2, 3, 4].map((n) => (
+            <div
+              key={n}
+              className={`h-2.5 flex-1 rounded-full ${n < Math.min(points, 5) ? "bg-gradient-to-r from-gold to-maroon" : "bg-sand"}`}
+            />
+          ))}
+        </div>
+
+        {points >= 5 ? (
+          <p className="mt-4 rounded-lg bg-gold/10 p-3 text-sm text-maroon">
+            🎁 You've unlocked a free gift! <b>Claim it at checkout</b> on your next order — it ships together.
+          </p>
+        ) : (
+          <p className="mt-4 text-sm text-ink/60">
+            {5 - points} more point{5 - points !== 1 ? "s" : ""} to unlock a free gift!
+          </p>
+        )}
       </div>
 
       <form onSubmit={submit} className="card mt-6 grid gap-4 p-6">

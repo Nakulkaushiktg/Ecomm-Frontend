@@ -18,7 +18,9 @@ export default function Checkout() {
   const [quote, setQuote] = useState(null);
   const [celebrate, setCelebrate] = useState(0);
   const [couponBusy, setCouponBusy] = useState(false);
+  const [claimGift, setClaimGift] = useState(false);
   const celebratedRef = useRef("");
+  const canClaimGift = (user?.points || 0) >= 5;
   const [form, setForm] = useState({
     customer_name: "", phone: "", email: "",
     address: "", city: "", state: "", pincode: "", note: "",
@@ -142,6 +144,7 @@ export default function Checkout() {
       ...form,
       payment_method: method,
       coupon_code: appliedCoupon,
+      claim_gift: canClaimGift && claimGift,
       items: cartItems(),
       ...extra,
     };
@@ -404,6 +407,24 @@ export default function Checkout() {
               )}
             </div>
           </div>
+
+          {/* loyalty gift claim */}
+          {canClaimGift && (
+            <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-gold bg-gold/10 p-4">
+              <input
+                type="checkbox"
+                checked={claimGift}
+                onChange={(e) => setClaimGift(e.target.checked)}
+                className="mt-1 h-5 w-5 accent-maroon"
+              />
+              <span className="text-sm">
+                <span className="font-semibold text-maroon">🎁 Claim your FREE gift with this order!</span>
+                <span className="block text-ink/60">
+                  You have {user.points} reward points. This uses 5 points — a gift will ship with your order.
+                </span>
+              </span>
+            </label>
+          )}
 
           {/* payment method */}
           <div className="card p-6">

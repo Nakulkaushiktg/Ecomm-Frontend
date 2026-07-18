@@ -44,6 +44,12 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  // set the user from a server response (e.g. after claiming a gift)
+  const applyUser = (data) => {
+    localStorage.setItem("user_info", JSON.stringify(data));
+    setUser(data);
+  };
+
   // refresh profile from server on load if logged in (keeps saved address fresh)
   useEffect(() => {
     if (!localStorage.getItem("user_token")) return;
@@ -60,7 +66,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthed: !!user, login, register, logout, updateProfile }}
+      value={{ user, isAuthed: !!user, login, register, logout, updateProfile, applyUser }}
     >
       {children}
     </AuthContext.Provider>
