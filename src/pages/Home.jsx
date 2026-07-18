@@ -6,6 +6,8 @@ import Reveal from "../components/Reveal.jsx";
 import Testimonials from "../components/Testimonials.jsx";
 import InstagramStrip from "../components/InstagramStrip.jsx";
 import Newsletter from "../components/Newsletter.jsx";
+import ProductSection from "../components/ProductSection.jsx";
+import StatsBand from "../components/StatsBand.jsx";
 import useCachedGet from "../hooks/useCachedGet.js";
 
 export default function Home() {
@@ -15,6 +17,12 @@ export default function Home() {
   const featured = featuredData || [];
   const { data: cfg } = useCachedGet("/api/orders/config");
   const ownerWa = cfg?.owner_whatsapp || "";
+  // all products (cached) → derive flag-based rows
+  const { data: allData } = useCachedGet("/api/products");
+  const all = allData || [];
+  const newArrivals = all.filter((p) => p.is_new);
+  const trending = all.filter((p) => p.is_trending);
+  const bestsellers = all.filter((p) => p.is_bestseller);
 
   const customWa = `https://wa.me/${ownerWa}?text=${encodeURIComponent(
     "Hi Kirti Thread Art! 🙏 I'd like to order a custom handmade piece. Here are my details:"
@@ -106,13 +114,18 @@ export default function Home() {
                   <img
                     src={c.image}
                     alt={c.label}
-                    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                    className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-110"
                   />
                 ) : (
                   <span className="grid h-full w-full place-items-center text-5xl">
                     {c.emoji}
                   </span>
                 )}
+                {/* hover overlay + label */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/60 via-ink/0 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 p-3 text-center font-serif text-lg text-cream opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                  Shop {c.label} →
+                </span>
               </div>
               <span className="block p-4 text-center font-serif text-lg text-ink group-hover:text-maroon">
                 {c.label}
@@ -122,6 +135,9 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* New Arrivals */}
+      <ProductSection eyebrow="Just In" title="✨ New Arrivals" products={newArrivals} viewAll="/shop" />
 
       {/* Featured */}
       <section className="mx-auto max-w-7xl px-4 pb-20">
@@ -153,8 +169,35 @@ export default function Home() {
         )}
       </section>
 
+      {/* Trending */}
+      <ProductSection eyebrow="Popular Now" title="🔥 Trending Now" products={trending} viewAll="/shop" />
+
       {/* Testimonials */}
       <Testimonials />
+
+      {/* Bestsellers */}
+      <ProductSection eyebrow="Customer Favourites" title="⭐ Bestsellers" products={bestsellers} viewAll="/shop" />
+
+      {/* Stats */}
+      <StatsBand />
+
+      {/* Loyalty promo */}
+      {cfg?.show_loyalty !== false && (
+      <section className="mx-auto max-w-7xl px-4 py-12">
+        <div className="relative overflow-hidden rounded-3xl border border-gold/40 bg-gradient-to-br from-sand to-cream px-8 py-12 text-center md:px-14">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 animate-float rounded-full bg-gold/20 blur-3xl" />
+          <div className="relative">
+            <span className="text-xs uppercase tracking-[0.3em] text-gold">Rewards</span>
+            <h2 className="mt-2 font-serif text-3xl text-maroon md:text-4xl">Earn points, get free gifts 🎁</h2>
+            <p className="mx-auto mt-3 max-w-xl text-ink/70">
+              Get <b>1 point</b> on every order above ₹1000. Collect <b>5 points</b> and claim a
+              <b> free handmade gift</b> with your next order — our little thank you. 💛
+            </p>
+            <Link to="/shop" className="btn-primary mt-6">Start Earning</Link>
+          </div>
+        </div>
+      </section>
+      )}
 
       {/* Custom orders CTA */}
       <section className="mx-auto max-w-7xl px-4 pb-16 pt-16">
