@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { api } from "../api.js";
 
 // Floating WhatsApp button — taps open a chat with the store owner.
 export default function WhatsAppButton() {
   const [wa, setWa] = useState("");
+  const { pathname } = useLocation();
 
   useEffect(() => {
     api
@@ -12,7 +14,8 @@ export default function WhatsAppButton() {
       .catch(() => {});
   }, []);
 
-  if (!wa) return null;
+  // hide on product pages — the mobile sticky bar's price sits where this icon is
+  if (!wa || pathname.startsWith("/product/")) return null;
 
   const href = `https://wa.me/${wa}?text=${encodeURIComponent(
     "Hi Kirti Thread Art! 🙏 I have a question about your products."

@@ -64,7 +64,14 @@ export default function Checkout() {
       .post("/api/orders/quote", {
         payment_method: method,
         coupon_code: appliedCoupon,
-        items: items.map((i) => ({ product_id: i.id, quantity: i.quantity })),
+        // send size/color so backend prices per-variant correctly (matches order)
+        items: items.map((i) => ({
+          product_id: i.id,
+          quantity: i.quantity,
+          variant: i.variant || "",
+          size: i.size || "",
+          color: i.color || "",
+        })),
       })
       .then((r) => {
         setQuote(r.data);

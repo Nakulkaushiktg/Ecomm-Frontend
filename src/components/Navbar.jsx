@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import { useCategories } from "../context/CategoriesContext.jsx";
@@ -12,9 +12,20 @@ export default function Navbar() {
   const wishlist = useWishlist();
   const { isAuthed, user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const headerRef = useRef(null);
+
+  // close the mobile menu when clicking anywhere outside the header
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDoc = (e) => {
+      if (headerRef.current && !headerRef.current.contains(e.target)) setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [menuOpen]);
 
   return (
-    <header className="border-b border-sand/70 bg-cream/80 shadow-[0_4px_24px_-16px_rgba(91,33,28,0.4)] backdrop-blur-md">
+    <header ref={headerRef} className="border-b border-sand/70 bg-cream/80 shadow-[0_4px_24px_-16px_rgba(91,33,28,0.4)] backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
         <Link to="/" className="group flex items-center gap-2">
           <img

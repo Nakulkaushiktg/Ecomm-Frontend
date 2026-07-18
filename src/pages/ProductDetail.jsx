@@ -20,8 +20,14 @@ const PLACEHOLDER =
     '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect width="100%" height="100%" fill="#F3E9D7"/><text x="50%" y="50%" font-size="28" fill="#7B2D26" text-anchor="middle" dominant-baseline="middle" font-family="serif">Kirti Thread Art</text></svg>'
   );
 
+// module-level caches so revisiting a product is instant (no loader flash)
+const pCache = new Map();
+const rvCache = new Map();
+const relCache = new Map();
+
 export default function ProductDetail() {
   const { slug } = useParams();
+  const cachedP = pCache.get(slug);
   const navigate = useNavigate();
   const { add, items, setQty: setCartQty, remove } = useCart();
   const { notify } = useToast();
@@ -51,14 +57,14 @@ export default function ProductDetail() {
     }
   };
   const { labelOf } = useCategories();
-  const [p, setP] = useState(null);
+  const [p, setP] = useState(() => cachedP || null);
   const [active, setActive] = useState(0);
   const [qty, setQty] = useState(1);
   const [notFound, setNotFound] = useState(false);
-  const [reviews, setReviews] = useState([]);
-  const [related, setRelated] = useState([]);
-  const [size, setSize] = useState("");
-  const [color, setColor] = useState("");
+  const [reviews, setReviews] = useState(() => rvCache.get(slug) || []);
+  const [related, setRelated] = useState(() => relCache.get(slug) || []);
+  const [size, setSize] = useState(() => cachedP?.sizes?.[0] || "");
+  const [color, setColor] = useState(() => cachedP?.colors?.[0] || "");
   const [variantErr, setVariantErr] = useState("");
   const [lightbox, setLightbox] = useState(null); // full-screen image url
   const [zoom, setZoom] = useState({ on: false, x: 50, y: 50 }); // hover magnifier
@@ -76,22 +82,51 @@ export default function ProductDetail() {
   useDocTitle(p?.name);
 
   const loadReviews = () =>
-    api.get(`/api/products/${slug}/reviews`).then((r) => setReviews(r.data)).catch(() => {});
+    api
+      .get(`/api/products/${slug}/reviews`)
+      .then((r) => {
+        rvCache.set(slug, r.data);
+        setReviews(r.data);
+      })
+      .catch(() => {});
 
   useEffect(() => {
-    setSize("");
-    setColor("");
+    setNotFound(false);
+    const cached = pCache.get(slug);
+    if (cached) {
+      // instant from cache
+      setP(cached);
+      recordRecentlyViewed(cached);
+      setSize(cached.sizes?.[0] || "");
+      setColor(cached.colors?.[0] || "");
+    } else {
+      setP(null);
+      setSize("");
+      setColor("");
+    }
+    // always revalidate in the background
     api
       .get(`/api/products/${slug}`)
       .then((r) => {
+        pCache.set(slug, r.data);
         setP(r.data);
         recordRecentlyViewed(r.data);
-        if (r.data.sizes?.length) setSize(r.data.sizes[0]);
-        if (r.data.colors?.length) setColor(r.data.colors[0]);
+        if (!cached) {
+          if (r.data.sizes?.length) setSize(r.data.sizes[0]);
+          if (r.data.colors?.length) setColor(r.data.colors[0]);
+        }
       })
-      .catch(() => setNotFound(true));
+      .catch(() => {
+        if (!cached) setNotFound(true);
+      });
     loadReviews();
-    api.get(`/api/products/${slug}/related`).then((r) => setRelated(r.data)).catch(() => {});
+    api
+      .get(`/api/products/${slug}/related`)
+      .then((r) => {
+        relCache.set(slug, r.data);
+        setRelated(r.data);
+      })
+      .catch(() => {});
   }, [slug]);
 
   // build the variant string and validate selection
