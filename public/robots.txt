@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /checkout
+Disallow: /cart
+Disallow: /account
+Disallow: /orders
+Disallow: /login
+
+Sitemap: https://kirti-thread-art.vercel.app/sitemap.xml

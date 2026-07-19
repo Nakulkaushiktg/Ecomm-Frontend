@@ -4,7 +4,7 @@ import { next } from "@vercel/edge";
 // product-specific link preview (image, name, price). Real users are untouched —
 // they always get the normal SPA.
 
-export const config = { matcher: "/product/:slug*" };
+export const config = { matcher: ["/product/:slug*", "/sitemap.xml"] };
 
 const BOT_RE =
   /facebookexternalhit|Facebot|Twitterbot|WhatsApp|Slackbot|LinkedInBot|Pinterest|TelegramBot|Discordbot|Googlebot|bingbot|redditbot|Applebot|vkShare|Embedly|W3C_Validator|Iframely/i;
@@ -19,12 +19,45 @@ const esc = (s = "") =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
+async function buildSitemap() {
+  const staticPages = [
+    "", "/shop", "/about", "/contact", "/track",
+    "/info/faq", "/info/shipping", "/info/refund", "/info/privacy", "/info/terms",
+  ];
+  let urls = staticPages.map((p) => `${SITE}${p}`);
+  try {
+    const [pr, cr] = await Promise.all([
+      fetch(`${BACKEND}/api/products`),
+      fetch(`${BACKEND}/api/categories`),
+    ]);
+    if (pr.ok) urls = urls.concat((await pr.json()).map((p) => `${SITE}/product/${p.slug}`));
+    if (cr.ok) urls = urls.concat((await cr.json()).map((c) => `${SITE}/shop/${c.key}`));
+  } catch {
+    /* static pages only */
+  }
+  const xml =
+    '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    urls.map((u) => `  <url><loc>${esc(u)}</loc><changefreq>weekly</changefreq></url>`).join("\n") +
+    "\n</urlset>";
+  return new Response(xml, {
+    headers: { "content-type": "application/xml", "cache-control": "public, max-age=3600" },
+  });
+}
+
 export default async function middleware(req) {
+  const url = new URL(req.url);
+
+  // dynamic sitemap for search engines
+  if (url.pathname === "/sitemap.xml") {
+    return buildSitemap();
+  }
+
   const ua = req.headers.get("user-agent") || "";
   // only intercept known social/crawler bots — everyone else gets the SPA
   if (!BOT_RE.test(ua)) return next();
 
-  const slug = new URL(req.url).pathname.split("/").filter(Boolean).pop();
+  const slug = url.pathname.split("/").filter(Boolean).pop();
   try {
     const r = await fetch(`${BACKEND}/api/products/${slug}`);
     if (!r.ok) return next();
