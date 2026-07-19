@@ -26,14 +26,18 @@ async function buildSitemap() {
   ];
   let urls = staticPages.map((p) => `${SITE}${p}`);
   try {
+    // cap the wait so a cold backend never makes Google time out
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 7000);
     const [pr, cr] = await Promise.all([
-      fetch(`${BACKEND}/api/products`),
-      fetch(`${BACKEND}/api/categories`),
+      fetch(`${BACKEND}/api/products`, { signal: ctrl.signal }),
+      fetch(`${BACKEND}/api/categories`, { signal: ctrl.signal }),
     ]);
+    clearTimeout(t);
     if (pr.ok) urls = urls.concat((await pr.json()).map((p) => `${SITE}/product/${p.slug}`));
     if (cr.ok) urls = urls.concat((await cr.json()).map((c) => `${SITE}/shop/${c.key}`));
   } catch {
-    /* static pages only */
+    /* static pages only — backend slow/unavailable */
   }
   const xml =
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
