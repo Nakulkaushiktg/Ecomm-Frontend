@@ -1,17 +1,9 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 
-// Address auto-fill like Amazon/Flipkart — both services are free, no API key:
-//  - pincode -> city + state via India Post (api.postalpincode.in)
-//  - "Use my current location" -> browser GPS, turned into an address with
-//    OpenStreetMap Nominatim (free; fine for a small store's traffic)
-// Location is only requested when the customer taps the button.
-
-export async function lookupPincode(pin) {
-  const r = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
-  const [res] = await r.json();
-  const po = res?.Status === "Success" ? res.PostOffice?.[0] : null;
-  return po ? { city: po.District, state: po.State } : null;
-}
+// "Use my current location" like Amazon/Flipkart — free, no API key: browser
+// GPS, turned into an address with OpenStreetMap Nominatim (fine for a small
+// store's traffic). Location is only requested when the customer taps the
+// button. Pincode / area suggestions live in components/PincodeSearch.jsx.
 
 export async function reverseGeocode(lat, lon) {
   const url =
@@ -48,25 +40,6 @@ function currentPosition() {
 export default function useAddressAutofill(setForm) {
   const [locating, setLocating] = useState(false);
   const [message, setMessage] = useState(""); // hint or error under the fields
-  const lastPin = useRef("");
-
-  // call from the pincode input's onChange
-  const onPincodeChange = (e) => {
-    const pin = e.target.value.replace(/\D/g, "").slice(0, 6);
-    setForm((f) => ({ ...f, pincode: pin }));
-    if (pin.length !== 6 || pin === lastPin.current) return;
-    lastPin.current = pin;
-    lookupPincode(pin)
-      .then((hit) => {
-        if (hit) {
-          setForm((f) => (f.pincode === pin ? { ...f, ...hit } : f));
-          setMessage("");
-        } else {
-          setMessage("Pincode not found — please check it.");
-        }
-      })
-      .catch(() => {}); // offline / service down: customer just types city & state
-  };
 
   const detectLocation = async () => {
     setMessage("");
@@ -78,7 +51,6 @@ export default function useAddressAutofill(setForm) {
     try {
       const pos = await currentPosition();
       const loc = await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
-      lastPin.current = loc.pincode;
       setForm((f) => ({
         ...f,
         // keep anything already typed in the address box
@@ -99,5 +71,5 @@ export default function useAddressAutofill(setForm) {
     }
   };
 
-  return { onPincodeChange, detectLocation, locating, message };
+  return { detectLocation, locating, message };
 }

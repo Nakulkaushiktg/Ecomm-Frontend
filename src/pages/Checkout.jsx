@@ -5,6 +5,7 @@ import { useCart } from "../context/CartContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import CouponCelebration from "../components/CouponCelebration.jsx";
 import LocateButton from "../components/LocateButton.jsx";
+import PincodeSearch from "../components/PincodeSearch.jsx";
 import useAddressAutofill from "../hooks/useAddressAutofill.js";
 
 export default function Checkout() {
@@ -291,6 +292,10 @@ export default function Checkout() {
               message={autofill.message}
             />
             <div>
+              <label className="label">Pincode *</label>
+              <PincodeSearch pincode={form.pincode} setForm={setForm} />
+            </div>
+            <div>
               <label className="label">Address *</label>
               <textarea
                 className="input"
@@ -300,7 +305,7 @@ export default function Checkout() {
                 onChange={set("address")}
               />
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="label">City *</label>
                 <input className="input" value={form.city} onChange={set("city")} />
@@ -308,17 +313,6 @@ export default function Checkout() {
               <div>
                 <label className="label">State *</label>
                 <input className="input" value={form.state} onChange={set("state")} />
-              </div>
-              <div>
-                <label className="label">Pincode *</label>
-                <input
-                  className="input"
-                  inputMode="numeric"
-                  maxLength={6}
-                  placeholder="6 digits"
-                  value={form.pincode}
-                  onChange={autofill.onPincodeChange}
-                />
               </div>
             </div>
             <div>

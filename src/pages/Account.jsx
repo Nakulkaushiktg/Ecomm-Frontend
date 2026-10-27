@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import LocateButton from "../components/LocateButton.jsx";
+import PincodeSearch from "../components/PincodeSearch.jsx";
 import useAddressAutofill from "../hooks/useAddressAutofill.js";
 
 export default function Account() {
@@ -19,10 +20,12 @@ export default function Account() {
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const autofill = useAddressAutofill((update) => {
+  // form update from the auto-fill helpers (also clears "Saved ✓")
+  const editForm = (update) => {
     setForm(update);
     setSaved(false);
-  });
+  };
+  const autofill = useAddressAutofill(editForm);
 
   if (!isAuthed) {
     return (
@@ -136,6 +139,10 @@ export default function Account() {
           message={autofill.message}
         />
         <div>
+          <label className="label">Pincode</label>
+          <PincodeSearch pincode={form.pincode} setForm={editForm} />
+        </div>
+        <div>
           <label className="label">Address</label>
           <textarea
             className="input"
@@ -145,7 +152,7 @@ export default function Account() {
             onChange={set("address")}
           />
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="label">City</label>
             <input className="input" value={form.city} onChange={set("city")} />
@@ -153,17 +160,6 @@ export default function Account() {
           <div>
             <label className="label">State</label>
             <input className="input" value={form.state} onChange={set("state")} />
-          </div>
-          <div>
-            <label className="label">Pincode</label>
-            <input
-              className="input"
-              inputMode="numeric"
-              maxLength={6}
-              placeholder="6 digits"
-              value={form.pincode}
-              onChange={autofill.onPincodeChange}
-            />
           </div>
         </div>
 
