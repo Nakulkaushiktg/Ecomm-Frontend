@@ -11,7 +11,7 @@ const PAGES = {
       ["Can I track my order?", "Yes! Visit the Track Order page and enter your Order ID and the phone number used at checkout to see live status. Registered customers can also see all orders under My Orders."],
       ["Do you make custom / personalised pieces?", "Absolutely — we love custom orders! Message us on WhatsApp or via Contact Us with your idea (colour, size, name, design) and our artisans will bring it to life."],
       ["Are the products really handmade?", "Yes. Every item is lovingly handcrafted by skilled Indian artisans. Slight variations in colour, size or texture are natural and make each piece truly one-of-a-kind."],
-      ["How do I earn rewards?", "Earn 1 reward point on every order above ₹1000. Collect 5 points and claim a free handmade gift at checkout on your next order — our little thank you. 💛"],
+      ["How do I earn rewards?", "Earn 1 reward point on every order above ₹1000 once it is delivered. Collect 5 points and claim a free handmade gift at checkout on your next order — our little thank you. 💛"],
       ["How do I care for my products?", "Most woolen and handmade items are best hand-washed gently in cold water and air-dried in shade. Care details, where applicable, are mentioned on the product page."],
     ],
   },

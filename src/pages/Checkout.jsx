@@ -155,9 +155,13 @@ export default function Checkout() {
 
   const payWithRazorpay = async () => {
     // 1. create a razorpay order on the backend
+    //    (the full form is saved too, so the order still gets placed from
+    //    Razorpay's webhook if this tab closes right after paying)
     const { data: rzp } = await api.post("/api/orders/razorpay/create", {
+      ...form,
       payment_method: "razorpay",
       coupon_code: appliedCoupon,
+      claim_gift: canClaimGift && claimGift,
       items: cartItems(),
     });
     // 2. open Razorpay checkout
@@ -177,14 +181,29 @@ export default function Checkout() {
       theme: { color: "#7B2D26" },
       handler: async (resp) => {
         // 3. payment done -> create our order with verified payment details
+        const paid = {
+          razorpay_order_id: resp.razorpay_order_id,
+          razorpay_payment_id: resp.razorpay_payment_id,
+          razorpay_signature: resp.razorpay_signature,
+        };
         try {
-          await placeOrder({
-            razorpay_order_id: resp.razorpay_order_id,
-            razorpay_payment_id: resp.razorpay_payment_id,
-            razorpay_signature: resp.razorpay_signature,
-          });
+          await placeOrder(paid);
         } catch (err) {
-          setError(err.response?.data?.detail || "Payment succeeded but order failed. Contact us.");
+          let failure = err;
+          // network blip: retry once (safe — the backend returns the same order
+          // for the same payment instead of creating a second one)
+          if (!err.response) {
+            try {
+              await placeOrder(paid);
+              return;
+            } catch (e2) {
+              failure = e2;
+            }
+          }
+          setError(
+            failure.response?.data?.detail ||
+              `Your payment was received (ref ${resp.razorpay_payment_id}). We'll confirm your order shortly — please don't pay again. Contact us on WhatsApp if you need help.`
+          );
           setSubmitting(false);
         }
       },

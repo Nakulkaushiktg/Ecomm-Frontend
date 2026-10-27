@@ -190,7 +190,7 @@ export default function Home() {
             <span className="text-xs uppercase tracking-[0.3em] text-gold">Rewards</span>
             <h2 className="mt-2 font-serif text-3xl text-maroon md:text-4xl">Earn points, get free gifts 🎁</h2>
             <p className="mx-auto mt-3 max-w-xl text-ink/70">
-              Get <b>1 point</b> on every order above ₹1000. Collect <b>5 points</b> and claim a
+              Get <b>1 point</b> on every delivered order above ₹1000. Collect <b>5 points</b> and claim a
               <b> free handmade gift</b> with your next order — our little thank you. 💛
             </p>
             <Link to="/shop" className="btn-primary mt-6">Start Earning</Link>

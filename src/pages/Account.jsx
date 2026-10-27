@@ -85,7 +85,7 @@ export default function Account() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-serif text-xl text-maroon">Rewards</h2>
-            <p className="text-sm text-ink/50">1 point per order of ₹1000+ · 5 points = a free gift 🎁</p>
+            <p className="text-sm text-ink/50">1 point per delivered order of ₹1000+ · 5 points = a free gift 🎁</p>
           </div>
           <div className="text-right">
             <div className="font-serif text-3xl text-maroon">{Math.min(points, 5)}<span className="text-lg text-ink/40">/5</span></div>
