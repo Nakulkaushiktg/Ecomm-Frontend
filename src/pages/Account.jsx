@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import LocateButton from "../components/LocateButton.jsx";
+import useAddressAutofill from "../hooks/useAddressAutofill.js";
 
 export default function Account() {
   const { user, isAuthed, updateProfile, logout } = useAuth();
@@ -17,6 +19,10 @@ export default function Account() {
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const autofill = useAddressAutofill((update) => {
+    setForm(update);
+    setSaved(false);
+  });
 
   if (!isAuthed) {
     return (
@@ -124,9 +130,20 @@ export default function Account() {
           <label className="label">Phone</label>
           <input className="input" value={form.phone} onChange={set("phone")} />
         </div>
+        <LocateButton
+          onClick={autofill.detectLocation}
+          locating={autofill.locating}
+          message={autofill.message}
+        />
         <div>
           <label className="label">Address</label>
-          <textarea className="input" rows={2} value={form.address} onChange={set("address")} />
+          <textarea
+            className="input"
+            rows={2}
+            placeholder="House / flat no., street, landmark"
+            value={form.address}
+            onChange={set("address")}
+          />
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div>
@@ -139,7 +156,14 @@ export default function Account() {
           </div>
           <div>
             <label className="label">Pincode</label>
-            <input className="input" value={form.pincode} onChange={set("pincode")} />
+            <input
+              className="input"
+              inputMode="numeric"
+              maxLength={6}
+              placeholder="6 digits"
+              value={form.pincode}
+              onChange={autofill.onPincodeChange}
+            />
           </div>
         </div>
 

@@ -4,6 +4,8 @@ import { api, rupee } from "../api.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import CouponCelebration from "../components/CouponCelebration.jsx";
+import LocateButton from "../components/LocateButton.jsx";
+import useAddressAutofill from "../hooks/useAddressAutofill.js";
 
 export default function Checkout() {
   const { items, clear } = useCart();
@@ -28,6 +30,7 @@ export default function Checkout() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const autofill = useAddressAutofill(setForm);
 
   const [availableCoupons, setAvailableCoupons] = useState([]);
 
@@ -282,9 +285,20 @@ export default function Checkout() {
                 <input type="email" className="input" value={form.email} onChange={set("email")} />
               </div>
             </div>
+            <LocateButton
+              onClick={autofill.detectLocation}
+              locating={autofill.locating}
+              message={autofill.message}
+            />
             <div>
               <label className="label">Address *</label>
-              <textarea className="input" rows={2} value={form.address} onChange={set("address")} />
+              <textarea
+                className="input"
+                rows={2}
+                placeholder="House / flat no., street, landmark"
+                value={form.address}
+                onChange={set("address")}
+              />
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
@@ -297,7 +311,14 @@ export default function Checkout() {
               </div>
               <div>
                 <label className="label">Pincode *</label>
-                <input className="input" inputMode="numeric" value={form.pincode} onChange={set("pincode")} />
+                <input
+                  className="input"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="6 digits"
+                  value={form.pincode}
+                  onChange={autofill.onPincodeChange}
+                />
               </div>
             </div>
             <div>
