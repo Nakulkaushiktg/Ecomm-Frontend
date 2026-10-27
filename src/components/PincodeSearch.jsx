@@ -1,19 +1,47 @@
 import { useEffect, useRef, useState } from "react";
 import { lookupPincode, searchPlaces } from "../lib/indiaPost.js";
 
-// Pincode box with suggestions, like Flipkart/Amazon:
+// Pincode box with live suggestions, like Flipkart/Amazon:
+//  - type an area name -> matching areas with pincodes, updating as you type
 //  - type a 6-digit pincode -> city & state fill in, list shows its areas
-//  - type an area name (3+ letters) -> list of matching areas with pincodes
-// Picking an area fills pincode, city, state (and the address if it's empty).
+// Picking an area fills pincode, city, state and adds the area to the address.
 // setForm: React state setter of a form with address/city/state/pincode keys.
+
+const cache = new Map(); // query -> results, shared across the page
+const MIN_LETTERS = 3;
+
+// best instant guess while the API answers: filter the results of the longest
+// already-fetched prefix (e.g. "karo" -> "karol")
+function fromCache(q) {
+  for (let n = q.length; n >= MIN_LETTERS; n--) {
+    const hit = cache.get(q.slice(0, n));
+    if (hit) return n === q.length ? hit : hit.filter((it) => it.name.toLowerCase().includes(q));
+  }
+  return null;
+}
+
+// put the picked area into the address: replace the area we added last time,
+// otherwise add it after whatever the customer typed (house no., street...)
+function withArea(address, area, prevArea) {
+  const a = (address || "").trim();
+  if (prevArea) {
+    if (a === prevArea) return area;
+    if (a.endsWith(", " + prevArea)) return a.slice(0, -prevArea.length) + area;
+  }
+  if (!a) return area;
+  if (a.toLowerCase().includes(area.toLowerCase())) return a;
+  return `${a}, ${area}`;
+}
+
 export default function PincodeSearch({ pincode, setForm }) {
   const [query, setQuery] = useState(pincode || "");
   const [items, setItems] = useState([]);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
-  const [status, setStatus] = useState(""); // "" | "loading" | "none"
+  const [status, setStatus] = useState(""); // "" | "loading" | "none" | "hint"
   const timer = useRef(null);
   const reqId = useRef(0); // ignore responses that arrive after newer typing
+  const lastArea = useRef("");
 
   // follow outside changes (saved address loaded, "use my location", a pick)
   useEffect(() => {
@@ -22,55 +50,59 @@ export default function PincodeSearch({ pincode, setForm }) {
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
-  const reset = () => {
-    reqId.current++;
-    setItems([]);
-    setOpen(false);
-    setStatus("");
+  const show = (list, st) => {
+    setItems(list);
+    setActive(-1);
+    setStatus(st);
+    setOpen(true);
   };
 
-  const run = (fetchList) => {
+  const fetchInto = (key, fetchList) => {
     const id = ++reqId.current;
-    setStatus("loading");
     fetchList()
       .then((list) => {
-        if (id !== reqId.current) return;
-        setItems(list);
-        setActive(-1);
-        setStatus(list.length ? "" : "none");
-        setOpen(true);
+        cache.set(key, list);
+        if (id === reqId.current) show(list, list.length ? "" : "none");
       })
       .catch(() => {
         // offline / service down: customer just types city & state
-        if (id === reqId.current) reset();
+        if (id === reqId.current) show([], "none");
       });
   };
 
   const onChange = (e) => {
     const text = e.target.value;
     clearTimeout(timer.current);
+    reqId.current++; // drop any answer for older text
 
     if (/^[\d\s]*$/.test(text)) {
       const pin = text.replace(/\D/g, "").slice(0, 6);
       setQuery(pin);
       setForm((f) => ({ ...f, pincode: pin }));
-      if (pin.length !== 6) return reset();
-      run(async () => {
-        const list = await lookupPincode(pin);
+      if (!pin) return setOpen(false);
+      if (pin.length < 6) return show([], "hint");
+      const fill = (list) => {
         if (list.length) {
           const { city, state } = list[0];
           setForm((f) => (f.pincode === pin ? { ...f, city, state } : f));
         }
         return list;
-      });
+      };
+      if (cache.has(pin)) return show(fill(cache.get(pin)), cache.get(pin).length ? "" : "none");
+      show([], "loading");
+      fetchInto(pin, async () => fill(await lookupPincode(pin)));
       return;
     }
 
     // typing a place name — the pincode isn't known until they pick one
     setQuery(text);
     setForm((f) => (f.pincode ? { ...f, pincode: "" } : f));
-    if (text.trim().length < 3) return reset();
-    timer.current = setTimeout(() => run(() => searchPlaces(text)), 350);
+    const q = text.trim().toLowerCase();
+    if (q.length < MIN_LETTERS) return show([], "hint");
+    const guess = fromCache(q);
+    if (cache.has(q)) return show(guess, guess.length ? "" : "none");
+    show(guess || [], "loading"); // instant: filtered earlier results + "Searching…"
+    timer.current = setTimeout(() => fetchInto(q, () => searchPlaces(q)), 250);
   };
 
   const pick = (it) => {
@@ -79,27 +111,35 @@ export default function PincodeSearch({ pincode, setForm }) {
       pincode: it.pincode,
       city: it.city,
       state: it.state,
-      address: f.address?.trim() ? f.address : it.name,
+      address: withArea(f.address, it.name, lastArea.current),
     }));
+    lastArea.current = it.name;
     setQuery(it.pincode);
     setOpen(false);
   };
 
   const onKeyDown = (e) => {
-    if (!open || !items.length) return;
+    if (e.key === "Escape") return setOpen(false);
+    if (!open) return;
+    if (e.key === "Enter") {
+      // never submit the whole form from here; pick the highlighted (or first) area
+      e.preventDefault();
+      if (items.length) pick(items[active >= 0 ? active : 0]);
+      return;
+    }
+    if (!items.length) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setActive((i) => (i + 1) % items.length);
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActive((i) => (i <= 0 ? items.length - 1 : i - 1));
-    } else if (e.key === "Enter" && active >= 0) {
-      e.preventDefault();
-      pick(items[active]);
-    } else if (e.key === "Escape") {
-      setOpen(false);
     }
   };
+
+  const hint = /^\d+$/.test(query)
+    ? "Keep typing — enter the full 6-digit pincode"
+    : `Type at least ${MIN_LETTERS} letters of your area`;
 
   return (
     <div className="relative">
@@ -119,7 +159,7 @@ export default function PincodeSearch({ pincode, setForm }) {
       {status === "loading" && (
         <span className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-ink/40">◌</span>
       )}
-      {open && (items.length > 0 || status === "none") && (
+      {open && (
         <ul
           role="listbox"
           className="absolute left-0 right-0 z-30 mt-1 max-h-64 overflow-auto rounded-xl border border-sand bg-white py-1 shadow-soft"
@@ -142,6 +182,8 @@ export default function PincodeSearch({ pincode, setForm }) {
               </div>
             </li>
           ))}
+          {status === "loading" && <li className="px-3 py-2 text-sm text-ink/50">Searching…</li>}
+          {status === "hint" && <li className="px-3 py-2 text-sm text-ink/50">{hint}</li>}
           {status === "none" && (
             <li className="px-3 py-2 text-sm text-ink/50">No matching area or pincode found</li>
           )}
